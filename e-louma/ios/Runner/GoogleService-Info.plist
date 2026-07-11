@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>183159945301-p7ko6mv630lvck276a61rk4dggho22k6.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.183159945301-p7ko6mv630lvck276a61rk4dggho22k6</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCfWeCJ1jpZWyuB0UvxNltg70MTao_U-_4</string>
+	<key>GCM_SENDER_ID</key>
+	<string>183159945301</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.elouma.e-loumaApp</string>
+	<key>PROJECT_ID</key>
+	<string>e-louma-b20de</string>
+	<key>STORAGE_BUCKET</key>
+	<string>e-louma-b20de.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:183159945301:ios:3a03ad15ce4f4cba22fcdc</string>
+</dict>
+</plist>

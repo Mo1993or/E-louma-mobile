@@ -1,0 +1,61 @@
+# --- Flutter / Dart ---
+.dart_tool/flutter_build
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+.pub-cache/
+
+# Build outputs (ne jamais versionner — fichiers très volumineux)
+build/
+
+# Coverage
+coverage/
+
+# Symbolication / obfuscation (si utilisé)
+**/app.*.symbols
+**/app.*.mapping
+**/android/**/gradle-wrapper.jar
+**/android/.gradle
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/key.properties
+**/android/local.properties
+**/android/app/debug
+**/android/app/profile
+**/android/app/release
+**/android/**/*.keystore
+
+# iOS / Xcode (Pods régénérables avec pod install)
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/**/Flutter/App.framework/
+**/ios/**/Flutter/ephemeral/
+
+# JetBrains IDE
+.idea/
+
+# Mac / Windows
+.DS_Store
+Thumbs.db
+
+# Logs & divers (du template précédent)
+node_modules/
+dist/
+*.class
+*.py[cod]
+*.log
+*.jar
+target/
+*.app
+*.exe
+*.war
+TEST*.xml
+*.mp4
+*.tiff
+*.avi
+*.flv
+*.mov
+*.wmv

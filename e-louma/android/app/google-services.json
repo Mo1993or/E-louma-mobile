@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "183159945301",
+    "project_id": "e-louma-b20de",
+    "storage_bucket": "e-louma-b20de.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:183159945301:android:358e2adeed6cd08d22fcdc",
+        "android_client_info": {
+          "package_name": "com.elouma.e_loumaApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "183159945301-kelh6pj07d0f6c1v3ha7pkai9ci1t9u2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfpaq3U1bhBRs1HA3mZbiQ_Lw7jxGtp2g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "183159945301-kelh6pj07d0f6c1v3ha7pkai9ci1t9u2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "183159945301-p7ko6mv630lvck276a61rk4dggho22k6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.elouma.e-loumaApp",
+                "app_store_id": "6769424425"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
