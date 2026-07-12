@@ -123,9 +123,38 @@ class ProductService {
     }
   }
 
-  Future<List<ProductInterface>> fetchProducts() async {
+  static List<ProductInterface> filterProducts({
+    required List<ProductInterface> products,
+    String? categoryId,
+    String? searchQuery,
+  }) {
+    return products.where((product) {
+      if (categoryId != null && categoryId.isNotEmpty) {
+        final matchesCategory = product.category.id == categoryId ||
+            product.category.name == categoryId;
+        if (!matchesCategory) return false;
+      }
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        final query = searchQuery.toLowerCase();
+        final matchesTitle = product.title.toLowerCase().contains(query);
+        final matchesCategoryName =
+            product.category.name.toLowerCase().contains(query);
+        if (!matchesTitle && !matchesCategoryName) return false;
+      }
+      return true;
+    }).toList();
+  }
+
+  Future<List<ProductInterface>> fetchProducts({
+    int limit = 20,
+    String? categoryId,
+  }) async {
+    final queryParams = <String, String>{'limit': '$limit'};
+    if (categoryId != null && categoryId.isNotEmpty) {
+      queryParams['category'] = categoryId;
+    }
     final response = await http.get(
-      Uri.parse('$apiUrl/products/index?limit=20'),
+      Uri.parse('$apiUrl/products/index').replace(queryParameters: queryParams),
     );
     print("response.statusCode oo  ${response.statusCode}");
     print("response.statusCode oo  ${response.body}");
@@ -142,6 +171,9 @@ class ProductService {
         }
       }
       print("listProducts $listProducts");
+      if (categoryId != null && categoryId.isNotEmpty) {
+        return filterProducts(products: listProducts, categoryId: categoryId);
+      }
       return listProducts;
     } else {
       final errorJson = json.decode(response.body);

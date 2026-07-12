@@ -5,7 +5,6 @@ import 'package:E_louma/Pages/HomePage/Notification.dart';
 import 'package:E_louma/Pages/Settings/dashboardPageTwo.dart';
 import 'package:E_louma/Pages/client/reservations_list_page.dart';
 import 'package:E_louma/Utils/constant.dart';
-import 'package:E_louma/data/catalog_data.dart';
 import 'package:E_louma/services/product_service.dart';
 import 'package:E_louma/widget/product_details.dart';
 import 'package:E_louma/widget/product_details_page.dart';
@@ -40,11 +39,6 @@ class _ShopPageState extends State<ShopPage> {
     });
   }
 
-  List<Product> get _allProducts {
-    var list = CatalogData.allProduct();
-    return list;
-  }
-
   List<ProductInterface> _filtered = [];
   List<CategoryInterface> listCat = [];
   List<ProductInterface> listProduct = [];
@@ -53,17 +47,54 @@ class _ShopPageState extends State<ShopPage> {
   List<ProductInterface> listProductFilter = [];
   List<String> listNameCat = [];
   bool showShimmers = true;
+  bool _showMyProductsOnly = false;
+  String? _selectedCategoryId;
+
+  void _applyFilters() {
+    final source = _showMyProductsOnly ? listMyProduct : listProduct;
+    setState(() {
+      _filtered = ProductService.filterProducts(
+        products: source,
+        categoryId: _selectedCategoryId,
+      );
+    });
+  }
+
+  void _setProductScope(bool myProductsOnly) {
+    setState(() {
+      _showMyProductsOnly = myProductsOnly;
+    });
+    _applyFilters();
+  }
+
+  void _setCategoryFilter(String? categoryId) {
+    setState(() {
+      _selectedCategoryId = categoryId;
+    });
+    if (!_showMyProductsOnly) {
+      _fetchProducts(categoryId: categoryId);
+    } else {
+      _applyFilters();
+    }
+  }
+
+  void _resetFilters() {
+    setState(() {
+      _showMyProductsOnly = false;
+      _selectedCategoryId = null;
+    });
+    _fetchProducts();
+  }
 
   filteredProduct(String _searchCtrl) {
-    _filtered = [];
-    for (var element in listProduct) {
-      if (element.title.toLowerCase().contains(_searchCtrl.toLowerCase())) {
-        setState(() {
-          _filtered.add(element);
-          print("listProduct filter $_filtered");
-        });
-      }
-    }
+    final source = _showMyProductsOnly ? listMyProduct : listProduct;
+    setState(() {
+      _filtered = ProductService.filterProducts(
+        products: source,
+        categoryId: _selectedCategoryId,
+        searchQuery: _searchCtrl,
+      );
+    });
   }
 
   _fetchCategory() async {
@@ -79,13 +110,15 @@ class _ShopPageState extends State<ShopPage> {
     } catch (e) {}
   }
 
-  _fetchProducts() async {
+  _fetchProducts({String? categoryId}) async {
     try {
-      await ProductService().fetchProducts().then((value) {
+      await ProductService()
+          .fetchProducts(categoryId: categoryId, limit: 50)
+          .then((value) {
         setState(() {
           print("values $value");
           listProduct = value;
-          _filtered = value;
+          _applyFilters();
           showShimmers = false;
         });
       });
@@ -113,7 +146,9 @@ class _ShopPageState extends State<ShopPage> {
         setState(() {
           print("values $value");
           listMyProduct = value;
-          _filtered = value;
+          if (_showMyProductsOnly) {
+            _applyFilters();
+          }
           _filterMyCategory();
           showShimmers = false;
         });
@@ -376,7 +411,22 @@ class _ShopPageState extends State<ShopPage> {
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold),
                                   ),
-                                  Text("Tout")
+                                  GestureDetector(
+                                    onTap: () {
+                                      _setProductScope(true);
+                                      _setCategoryFilter(null);
+                                    },
+                                    child: Text(
+                                      "Tout",
+                                      style: TextStyle(
+                                        color: _showMyProductsOnly &&
+                                                _selectedCategoryId == null
+                                            ? primaryColor
+                                            : Colors.black54,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  )
                                 ],
                               ),
                               SizedBox(
@@ -413,7 +463,22 @@ class _ShopPageState extends State<ShopPage> {
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold),
                           ),
-                          Text("Tout")
+                          GestureDetector(
+                            onTap: () {
+                              _setProductScope(false);
+                              _setCategoryFilter(null);
+                            },
+                            child: Text(
+                              "Tout",
+                              style: TextStyle(
+                                color: !_showMyProductsOnly &&
+                                        _selectedCategoryId == null
+                                    ? primaryColor
+                                    : Colors.black54,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          )
                         ],
                       ),
                       SizedBox(
@@ -439,21 +504,82 @@ class _ShopPageState extends State<ShopPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Nouveau produits (${listProduct.length})',
+                                  _showMyProductsOnly
+                                      ? 'Mes produits (${_filtered.length})'
+                                      : 'Nouveau produits (${_filtered.length})',
                                   style: GoogleFonts.poppins(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
+                                if (_showMyProductsOnly ||
+                                    _selectedCategoryId != null)
+                                  TextButton(
+                                    onPressed: _resetFilters,
+                                    child: const Text('Réinitialiser'),
+                                  ),
                               ],
                             ),
                           )),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: ChoiceChip(
+                                label: const Text('Tous les produits'),
+                                selected: !_showMyProductsOnly,
+                                onSelected: (_) => _setProductScope(false),
+                                selectedColor:
+                                    primaryColor.withValues(alpha: 0.35),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: ChoiceChip(
+                                label: const Text('Mes produits'),
+                                selected: _showMyProductsOnly,
+                                onSelected: (_) => _setProductScope(true),
+                                selectedColor:
+                                    primaryColor.withValues(alpha: 0.35),
+                              ),
+                            ),
+                            ...listCat.map((category) {
+                              final selected =
+                                  _selectedCategoryId == category.id;
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: FilterChip(
+                                  label: Text(category.name),
+                                  selected: selected,
+                                  onSelected: (_) {
+                                    if (selected) {
+                                      _setCategoryFilter(null);
+                                    } else {
+                                      _setCategoryFilter(category.id);
+                                    }
+                                  },
+                                  selectedColor:
+                                      primaryColor.withValues(alpha: 0.35),
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 12,
+                      ),
                       Container(
                           padding: EdgeInsets.only(top: 20),
                           height: mediaHeight(context) / 2,
                           alignment: Alignment.bottomCenter,
                           child: Container(
-                              child: _allProducts.isEmpty
+                              child: _filtered.isEmpty
                                   ? Center(
                                       child: Text(
                                         'Aucun produit pour ce filtre.',
@@ -473,9 +599,9 @@ class _ShopPageState extends State<ShopPage> {
                                           crossAxisSpacing: 12,
                                           childAspectRatio: 0.72,
                                         ),
-                                        itemCount: listProduct.length,
+                                        itemCount: _filtered.length,
                                         itemBuilder: (context, i) {
-                                          final p = listProduct[i];
+                                          final p = _filtered[i];
                                           return makeProductSeller(
                                               detailProduct: p);
                                         },

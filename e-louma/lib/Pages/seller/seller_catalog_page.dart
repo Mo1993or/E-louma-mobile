@@ -2,7 +2,7 @@ import 'package:E_louma/Interface/categoryInterface.dart';
 import 'package:E_louma/Interface/productInterface.dart';
 import 'package:E_louma/Pages/HomePage/SearchProduct.dart';
 import 'package:E_louma/Utils/constant.dart';
-import 'package:E_louma/data/catalog_data.dart';
+import 'package:E_louma/services/product_service.dart';
 import 'package:E_louma/widget/CategoryPage.dart';
 import 'package:E_louma/widget/product_details.dart';
 import 'package:E_louma/widget/product_details_page.dart';
@@ -31,24 +31,26 @@ class _SellerCatalogPageState extends State<SellerCatalogPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     filteredItems = allItems;
-    filteredProduct("");
+    _applyFilters();
   }
 
   List<ProductInterface> _filtered = [];
 
-  filteredProduct(String _searchCtrl) {
-    _filtered = [];
-    for (var element in widget.listProduct) {
-      if (element.title.toLowerCase().contains(_searchCtrl.toLowerCase())) {
-        setState(() {
-          _filtered.add(element);
-          print("listProduct filter $_filtered");
-        });
-      }
-    }
+  void _applyFilters({String? voiceQuery}) {
+    final query = voiceQuery ?? _searchCtrl.text;
+    setState(() {
+      _filtered = ProductService.filterProducts(
+        products: widget.listProduct,
+        categoryId: _selectedCategoryId,
+        searchQuery: query.isNotEmpty ? query : null,
+      );
+    });
+  }
+
+  filteredProduct(String searchText) {
+    _applyFilters();
   }
 
   List<Product> listProd = [];
@@ -81,17 +83,10 @@ class _SellerCatalogPageState extends State<SellerCatalogPage> {
   List<ProductInterface> _filteredProductsVoice(String query) {
     print("_filtered_filtere query $query");
     if (checkVoice) {
-      setState(() {
-        _filtered = CatalogData.searchProducts(query, widget.listProduct);
-        print("_filtered_filtered $_filtered");
-      });
-
+      _applyFilters(voiceQuery: query);
       return _filtered;
     } else {
-      setState(() {
-        _filtered = widget.listProduct;
-      });
-
+      _applyFilters();
       return _filtered;
     }
   }
@@ -246,7 +241,10 @@ class _SellerCatalogPageState extends State<SellerCatalogPage> {
                       child: _CategoryChip(
                         label: 'Toutes',
                         selected: _selectedCategoryId == null,
-                        onTap: () => setState(() => _selectedCategoryId = null),
+                        onTap: () => setState(() {
+                          _selectedCategoryId = null;
+                          _applyFilters();
+                        }),
                       ),
                     ),
                     ...widget.listCat.map((c) {
@@ -256,8 +254,10 @@ class _SellerCatalogPageState extends State<SellerCatalogPage> {
                         child: _CategoryCard(
                           category: c,
                           selected: selected,
-                          onTap: () =>
-                              setState(() => _selectedCategoryId = c.id),
+                          onTap: () => setState(() {
+                            _selectedCategoryId = c.id;
+                            _applyFilters();
+                          }),
                         ),
                       );
                     }),
@@ -280,8 +280,10 @@ class _SellerCatalogPageState extends State<SellerCatalogPage> {
                     ),
                     if (_selectedCategoryId != null)
                       TextButton(
-                        onPressed: () =>
-                            setState(() => _selectedCategoryId = null),
+                        onPressed: () => setState(() {
+                          _selectedCategoryId = null;
+                          _applyFilters();
+                        }),
                         child: const Text('Réinitialiser filtre'),
                       ),
                   ],

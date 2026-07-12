@@ -32,26 +32,22 @@ class _ClientDiscoverPageState extends State<ClientDiscoverPage> {
   List<ProductInterface> listProduct = [];
   List<ProductInterface> listProductFilter = [];
   bool showShimmers = true;
-  @override
-  void dispose() {
-    _searchCtrl.dispose();
-    super.dispose();
-  }
 
-  List<Product> get _pool => CatalogData.productsInCategory(_categoryFilterId);
+  void _applyFilters() {
+    setState(() {
+      _filtered = ProductService.filterProducts(
+        products: listProduct,
+        categoryId: _categoryFilterId,
+        searchQuery:
+            _searchCtrl.text.isNotEmpty ? _searchCtrl.text : null,
+      );
+    });
+  }
 
   List<ProductInterface> _filtered = [];
 
-  filteredProduct(String _searchCtrl) {
-    _filtered = [];
-    for (var element in listProduct) {
-      if (element.title.toLowerCase().contains(_searchCtrl.toLowerCase())) {
-        setState(() {
-          _filtered.add(element);
-          print("listProduct filter $_filtered");
-        });
-      }
-    }
+  filteredProduct(String searchText) {
+    _applyFilters();
   }
 
   List<Product> get _featured {
@@ -73,19 +69,27 @@ class _ClientDiscoverPageState extends State<ClientDiscoverPage> {
     } catch (e) {}
   }
 
-  _fetchProducts() async {
+  _fetchProducts({String? categoryId}) async {
     try {
-      await ProductService().fetchProducts().then((value) {
+      await ProductService()
+          .fetchProducts(categoryId: categoryId, limit: 50)
+          .then((value) {
         setState(() {
           print("values $value");
           listProduct = value;
-          _filtered = value;
+          _applyFilters();
           showShimmers = false;
         });
       });
     } catch (e) {
       print("error $e");
     }
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
   }
 
   @override
@@ -454,10 +458,7 @@ class _ClientDiscoverPageState extends State<ClientDiscoverPage> {
         builder: (_, __, ___) {
           return TextField(
             controller: _searchCtrl,
-            onChanged: (_) => setState(() {
-              print("_searchCtrl.text ${_searchCtrl.text}");
-              filteredProduct(_searchCtrl.text);
-            }),
+            onChanged: (_) => _applyFilters(),
             decoration: InputDecoration(
               hintText: 'Rechercher robe, lunettes, tech…',
               prefixIcon:
@@ -467,7 +468,7 @@ class _ClientDiscoverPageState extends State<ClientDiscoverPage> {
                       icon: const Icon(Icons.close_rounded),
                       onPressed: () {
                         _searchCtrl.clear();
-                        setState(() {});
+                        _applyFilters();
                       },
                     )
                   : null,
@@ -521,15 +522,21 @@ class _ClientDiscoverPageState extends State<ClientDiscoverPage> {
                       label: 'Tout',
                       image: null,
                       selected: _categoryFilterId == null,
-                      onTap: () => setState(() => _categoryFilterId = null),
+                      onTap: () => setState(() {
+                        _categoryFilterId = null;
+                        _fetchProducts();
+                      }),
                     ),
                     ...listCat.map((c) {
-                      final sel = _categoryFilterId == c.name;
+                      final sel = _categoryFilterId == c.id;
                       return _CategoryOrb(
                         label: c.name,
                         image: c.image,
                         selected: sel,
-                        onTap: () => setState(() => _categoryFilterId = c.name),
+                        onTap: () => setState(() {
+                          _categoryFilterId = c.id;
+                          _fetchProducts(categoryId: c.id);
+                        }),
                       );
                     }),
                   ],

@@ -19,6 +19,7 @@ class AddProductPage extends StatefulWidget {
 }
 
 class _AddProductPageState extends State<AddProductPage> {
+  final _formKey = GlobalKey<FormState>();
   File? _image;
   final picker = ImagePicker();
 
@@ -75,46 +76,129 @@ class _AddProductPageState extends State<AddProductPage> {
     // }
   }
 
+  void _setCategoryFromValue(String? value) {
+    if (value == null || !value.contains(',')) return;
+    final parts = value.split(',');
+    idCat = parts.first;
+    selectedCategory = value;
+  }
+
+  void _closeLoadingDialog() {
+    if (Navigator.of(context, rootNavigator: true).canPop()) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
+  }
+
+  void _showMessage(String title, String message, ContentType type) {
+    final snackBar = SnackBar(
+      elevation: 0,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.transparent,
+      content: AwesomeSnackbarContent(
+        title: title,
+        message: message,
+        contentType: type,
+      ),
+    );
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(snackBar);
+  }
+
+  String? _validateTitle(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Le nom du produit est obligatoire';
+    }
+    return null;
+  }
+
+  String? _validatePrice(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Le prix est obligatoire';
+    }
+    if (int.tryParse(value.trim()) == null) {
+      return 'Entrez un prix valide';
+    }
+    return null;
+  }
+
   _addProduct() async {
-    // if (_loginFormKey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    if (idCat.isEmpty) {
+      _showMessage(
+        'Champ manquant',
+        'Veuillez choisir une catégorie',
+        ContentType.warning,
+      );
+      return;
+    }
+    if (selectedCondition == null || selectedCondition!.isEmpty) {
+      _showMessage(
+        'Champ manquant',
+        'Veuillez choisir la condition du produit',
+        ContentType.warning,
+      );
+      return;
+    }
+    if (selectedQuantity == null || selectedQuantity!.isEmpty) {
+      _showMessage(
+        'Champ manquant',
+        'Veuillez choisir une quantité',
+        ContentType.warning,
+      );
+      return;
+    }
+    if (selectedAmountType == null || selectedAmountType!.isEmpty) {
+      _showMessage(
+        'Champ manquant',
+        'Indiquez si le montant est négociable',
+        ContentType.warning,
+      );
+      return;
+    }
+    if (_images.isEmpty) {
+      _showMessage(
+        'Photo manquante',
+        'Ajoutez au moins une photo du produit',
+        ContentType.warning,
+      );
+      return;
+    }
+
     try {
       showAlertDialog(context);
 
       var data = {
-        "title": nameController.text,
-        'price': int.parse(priceController.text),
+        "title": nameController.text.trim(),
+        'price': int.parse(priceController.text.trim()),
         'category': idCat,
-        'brand': descriptionController.text,
+        'brand': descriptionController.text.trim(),
         'quantity': selectedQuantity,
         'condition': selectedCondition,
-        'pricenegotiable': (selectedAmountType == "Oui") ? true : false,
+        'pricenegotiable': selectedAmountType == "Oui",
       };
       var result = await ProductService().addProduct(data, imagesPath);
 
       print("result $result");
-      // setState(() {
+      if (!mounted) return;
+      _closeLoadingDialog();
+
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => ShopPage()));
-      // });
 
-      final snackBar = SnackBar(
-        elevation: 0,
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Colors.transparent,
-        content: AwesomeSnackbarContent(
-          title: 'Succès',
-          message: 'Produit ajouté',
-          contentType: ContentType.success,
-        ),
-      );
-
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(snackBar);
+      _showMessage('Succès', 'Produit ajouté', ContentType.success);
     } catch (error) {
       print("error $error");
+      if (!mounted) return;
+      _closeLoadingDialog();
+      _showMessage(
+        'Erreur',
+        error.toString().replaceFirst('Exception: ', ''),
+        ContentType.failure,
+      );
     }
-    // }
   }
 
   void _removeImage(int index) {
@@ -157,7 +241,9 @@ class _AddProductPageState extends State<AddProductPage> {
                   )
                 ],
               ),
-              child: Column(
+              child: Form(
+                key: _formKey,
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // IMAGE UPLOAD
@@ -295,9 +381,10 @@ class _AddProductPageState extends State<AddProductPage> {
                   SizedBox(height: 20),
 
                   // NOM PRODUIT
-                  TextField(
+                  TextFormField(
                     controller: nameController,
                     cursorColor: primaryColor,
+                    validator: _validateTitle,
                     decoration: InputDecoration(
                       labelText: "Nom du produit",
                       labelStyle: TextStyle(
@@ -322,23 +409,16 @@ class _AddProductPageState extends State<AddProductPage> {
                   DropdownButtonFormField<String>(
                     value: selectedCategory,
                     hint: Text("Choisir une catégorie"),
+                    validator: (value) =>
+                        value == null ? 'Choisissez une catégorie' : null,
                     items: widget.listCategory
-                        .toList()
                         .map((cat) => DropdownMenuItem(
                               value: "${cat.id},${cat.name}",
                               child: Text(cat.name),
-                              onTap: () {
-                                print("dd ${cat.id}");
-                                idCat = cat.id;
-                              },
                             ))
                         .toList(),
                     onChanged: (value) {
-                      setState(() {
-                        // List<String> listSelect = value.toString().split(",");
-                        // print("listSelect $listSelect");
-                        selectedCategory = value;
-                      });
+                      setState(() => _setCategoryFromValue(value));
                     },
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
@@ -354,12 +434,12 @@ class _AddProductPageState extends State<AddProductPage> {
                     ),
                   ),
                   SizedBox(height: 16),
-                  TextField(
+                  TextFormField(
                     cursorColor: primaryColor,
                     maxLines: 5,
                     controller: descriptionController,
                     decoration: InputDecoration(
-                      hintText: "Description",
+                      labelText: "Description / Marque",
                       filled: true,
                       fillColor: Colors.white,
                       contentPadding: const EdgeInsets.all(20),
@@ -439,10 +519,11 @@ class _AddProductPageState extends State<AddProductPage> {
                   ),
                   SizedBox(height: 16),
                   // PRIX
-                  TextField(
+                  TextFormField(
                     controller: priceController,
                     keyboardType: TextInputType.number,
                     cursorColor: primaryColor,
+                    validator: _validatePrice,
                     decoration: InputDecoration(
                       fillColor: primaryColor,
                       focusColor: primaryColor,
@@ -502,6 +583,7 @@ class _AddProductPageState extends State<AddProductPage> {
                     },
                   ),
                 ],
+                ),
               ),
             ),
           ),
