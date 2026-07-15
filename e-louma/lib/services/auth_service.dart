@@ -123,4 +123,24 @@ class AuthService {
       throw Exception('$e');
     }
   }
+
+  dynamic deleteAccount() async {
+    try {
+      final response = await http.post(
+        Uri.parse('$apiUrl/auth/reset-password'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      print('response.body dd : ${response.body}');
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return responseData;
+      } else {
+        final errorMessage = responseData['message'];
+        throw Exception('$errorMessage');
+      }
+    } catch (e) {
+      throw Exception('$e');
+    }
+  }
 }

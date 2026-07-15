@@ -516,7 +516,10 @@ class _ShopPageState extends State<ShopPage> {
                                     _selectedCategoryId != null)
                                   TextButton(
                                     onPressed: _resetFilters,
-                                    child: const Text('Réinitialiser'),
+                                    child: const Text(
+                                      'Réinitialiser',
+                                      style: TextStyle(color: primaryColor),
+                                    ),
                                   ),
                               ],
                             ),

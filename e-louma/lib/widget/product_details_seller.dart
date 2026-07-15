@@ -11,6 +11,8 @@ import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProductDetailPages extends StatefulWidget {
@@ -552,18 +554,57 @@ class _ProductDetailPagesState extends State<ProductDetailPages> {
                   const SizedBox(height: 20),
 
                   /// TITLE
-                  Text(
-                    widget.product.title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
+                  ///
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          widget.product.title,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        GestureDetector(
+                            onTap: () {
+                              QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.info,
+                                showConfirmBtn: true,
+                                showCancelBtn: true,
+                                confirmBtnText: 'Oui',
+                                cancelBtnText: "Non",
+                                confirmBtnColor: primaryColor,
+                                title: "Suppression",
+                                text:
+                                    'Êtes vous sûre de vouloir supprimer ce produit ?',
+                                onConfirmBtnTap: () async {
+                                  Navigator.of(context).pushAndRemoveUntil(
+                                    MaterialPageRoute(
+                                        builder: (context) => ShopPage()),
+                                    (_) => false,
+                                  );
+                                },
+                              );
+                            },
+                            child: CircleAvatar(
+                                radius: 20,
+                                backgroundColor: Colors.orange.shade50,
+                                child: CircleAvatar(
+                                  radius: 18,
+                                  backgroundColor: Colors.orange.shade50,
+                                  child: Icon(
+                                    Icons.delete,
+                                    size: 18,
+                                    color: Colors.red.shade900,
+                                  ),
+                                ))),
+                      ]),
                   const SizedBox(height: 14),
 
                   /// PRICE + RATING
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         "${widget.product.price} FCFA",
@@ -572,29 +613,20 @@ class _ProductDetailPagesState extends State<ProductDetailPages> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Spacer(),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.shade50,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.star, color: Colors.orange, size: 18),
-                            SizedBox(width: 6),
-                            Text(
-                              widget.product.condition,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                          ],
-                        ),
-                      )
+                          width: 120,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            color: Colors.orange.shade50,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Center(
+                              child: Text(
+                            widget.product.condition,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )))
                     ],
                   ),
 

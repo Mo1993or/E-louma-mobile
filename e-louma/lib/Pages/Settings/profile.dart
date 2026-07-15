@@ -1,9 +1,14 @@
 import 'package:E_louma/Interface/dashboardInterface.dart';
+import 'package:E_louma/Interface/productInterface.dart';
 import 'package:E_louma/Pages/Auth/signIn.dart';
 import 'package:E_louma/Pages/HomePage/Notification.dart';
 import 'package:E_louma/Pages/client/client_discover_page.dart';
 import 'package:E_louma/Utils/constant.dart';
+import 'package:E_louma/services/product_service.dart';
+import 'package:E_louma/widget/showAlertCustom.dart';
 import 'package:flutter/material.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // TODO: add flutter_svg to pubspec.yaml
@@ -73,10 +78,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   CustomFormButtonOther(
                     innerText: 'Se deconnecter',
                     onPressed: () async {
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (context) => ClientDiscoverPage()),
-                        (_) => false,
+                      QuickAlert.show(
+                        context: context,
+                        type: QuickAlertType.info,
+                        showConfirmBtn: true,
+                        showCancelBtn: true,
+                        confirmBtnText: 'Oui',
+                        cancelBtnText: "Non",
+                        confirmBtnColor: Colors.red,
+                        title: "Déconnexion",
+                        text: 'Êtes vous sûre de vouloir vous déconnecter ?',
+                        onConfirmBtnTap: () async {
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                                builder: (context) => ClientDiscoverPage()),
+                            (_) => false,
+                          );
+                        },
                       );
                     },
                   ),
@@ -84,10 +102,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   CustomFormButtonOutline(
                     innerText: 'Supprimer mon compte',
                     onPressed: () async {
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (context) => ClientDiscoverPage()),
-                        (_) => false,
+                      QuickAlert.show(
+                        context: context,
+                        type: QuickAlertType.info,
+                        showConfirmBtn: true,
+                        showCancelBtn: true,
+                        confirmBtnText: 'Oui',
+                        cancelBtnText: "Non",
+                        confirmBtnColor: Colors.red,
+                        title: "Suppression compte",
+                        text:
+                            'Êtes vous sûre de vouloir supprimer ton compte ?',
+                        onConfirmBtnTap: () async {
+                          try {
+                            Navigator.pop(context);
+                            showAlertDialog(context);
+                            await ProductService().deleteAccount();
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                  builder: (context) => ClientDiscoverPage()),
+                              (_) => false,
+                            );
+                          } catch (e) {
+                            Navigator.pop(context);
+                          }
+                        },
                       );
                     },
                   ),

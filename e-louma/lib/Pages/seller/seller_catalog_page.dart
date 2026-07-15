@@ -284,7 +284,10 @@ class _SellerCatalogPageState extends State<SellerCatalogPage> {
                           _selectedCategoryId = null;
                           _applyFilters();
                         }),
-                        child: const Text('Réinitialiser filtre'),
+                        child: const Text(
+                          'Réinitialiser filtre',
+                          style: TextStyle(color: primaryColor),
+                        ),
                       ),
                   ],
                 ),

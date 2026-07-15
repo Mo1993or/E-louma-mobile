@@ -1,5 +1,6 @@
 import 'package:E_louma/Interface/categoryInterface.dart';
 import 'package:E_louma/Interface/productInterface.dart';
+import 'package:E_louma/Pages/HomePage/ShopPage.dart';
 import 'package:E_louma/Pages/client/reservation_form_page.dart';
 import 'package:E_louma/Utils/constant.dart';
 import 'package:E_louma/Utils/size.dart';
@@ -7,6 +8,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 
 class ProductDetailCustomerPages extends StatefulWidget {
   final ProductInterface product;
@@ -185,6 +188,7 @@ class _ProductDetailCustomerPagesState
                   const SizedBox(height: 20),
 
                   /// TITLE
+
                   Text(
                     widget.product.title,
                     style: TextStyle(
@@ -197,37 +201,30 @@ class _ProductDetailCustomerPagesState
 
                   /// PRICE + RATING
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "${widget.product.price}FCFA",
+                        "${widget.product.price} FCFA",
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Spacer(),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.shade50,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.star, color: Colors.orange, size: 18),
-                            SizedBox(width: 6),
-                            Text(
-                              widget.product.condition,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                          ],
-                        ),
-                      )
+                          width: 120,
+                          height: 30,
+                          // margin: EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.shade50,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Center(
+                              child: Text(
+                            widget.product.condition,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )))
                     ],
                   ),
 

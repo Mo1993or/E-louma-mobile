@@ -16,6 +16,7 @@ import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:voice_search/voice_search.dart';
 
 /// Parcours client : recherche, catégories, sélection mise en avant, grille catalogue.
 class ClientDiscoverPage extends StatefulWidget {
@@ -32,18 +33,19 @@ class _ClientDiscoverPageState extends State<ClientDiscoverPage> {
   List<ProductInterface> listProduct = [];
   List<ProductInterface> listProductFilter = [];
   bool showShimmers = true;
-
-  void _applyFilters() {
+  String? _selectedCategoryId;
+  void _applyFilters({String? voiceQuery}) {
+    final query = voiceQuery ?? _searchCtrl.text;
     setState(() {
       _filtered = ProductService.filterProducts(
         products: listProduct,
-        categoryId: _categoryFilterId,
-        searchQuery:
-            _searchCtrl.text.isNotEmpty ? _searchCtrl.text : null,
+        categoryId: _selectedCategoryId,
+        searchQuery: query.isNotEmpty ? query : null,
       );
     });
   }
 
+  bool checkVoice = false;
   List<ProductInterface> _filtered = [];
 
   filteredProduct(String searchText) {
@@ -67,6 +69,19 @@ class _ClientDiscoverPageState extends State<ClientDiscoverPage> {
         });
       });
     } catch (e) {}
+  }
+
+  List<ProductInterface> _filteredProductsVoice(
+    String query,
+  ) {
+    print("_filtered_filtere query $query");
+    if (checkVoice) {
+      _applyFilters(voiceQuery: query);
+      return _filtered;
+    } else {
+      _applyFilters();
+      return _filtered;
+    }
   }
 
   _fetchProducts({String? categoryId}) async {
@@ -105,22 +120,77 @@ class _ClientDiscoverPageState extends State<ClientDiscoverPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FC),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: FloatingActionButton(
-        tooltip: 'Mes réservations',
-        elevation: 6,
-        backgroundColor: Colors.black87,
-        foregroundColor: primaryColor,
-        child: const Icon(Icons.event_note_rounded, size: 26),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const ReservationsListPage(
-                isCommingSeller: false,
-              ),
-            ),
-          );
-        },
+      floatingActionButton: FadeInDown(
+        duration: Duration(milliseconds: 1400),
+        child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+          (!checkVoice)
+              ? VoiceSearchWidget(
+                  localeCode: 'fr_FR', // Set locale for voice recognition
+                  // localeCode:
+                  //     Locales.ENGLISH_US, // choos locale from defined locale class
+                  activeWidgetColor:
+                      Colors.green, // Color when widget is active
+                  inactiveWidgetColor:
+                      primaryColor, // Color when widget is inactive
+                  activeIcon: Icons.mic, // Icon when widget is active
+                  inactiveIcon: Icons.mic_none,
+                  // Icon when widget is inactive
+                  maxRadius: 35, // Maximum radius of the widget
+                  minRadius: 25, // Minimum radius of the widget
+                  animationDuration:
+                      Duration(milliseconds: 500), // Animation duration
+                  animationCurve: Curves.bounceIn, // Animation curve
+                  onResult: _filteredProductsVoice,
+                  onListeningStarted: () {
+                    print('Listening started');
+                    checkVoice = true;
+                  },
+                  onListeningStopped: () {
+                    // checkVoice = false;
+                    print('Listening stopped');
+                  },
+                )
+              : GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      checkVoice = false;
+                      _filteredProductsVoice("");
+                    });
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(top: 10),
+                    height: 65,
+                    width: 65,
+                    decoration: BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: BorderRadius.all(Radius.circular(32.5))),
+                    child: Center(
+                        child: Icon(
+                      Icons.clear,
+                      color: Colors.white,
+                    )),
+                  )),
+          GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ReservationsListPage(
+                      isCommingSeller: false,
+                    ),
+                  ),
+                );
+              },
+              child: Container(
+                  margin: EdgeInsets.only(top: 10),
+                  height: 65,
+                  width: 65,
+                  decoration: BoxDecoration(
+                      color: primaryColor,
+                      borderRadius: BorderRadius.all(Radius.circular(32.5))),
+                  child:
+                      Center(child: Icon(Icons.event_note_rounded, size: 26)))),
+        ]),
       ),
       body: SafeArea(
         bottom: false,
