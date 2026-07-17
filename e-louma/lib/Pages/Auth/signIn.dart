@@ -599,17 +599,21 @@ class CustomFormButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    final enabled = onPressed != null;
     return Container(
       width: size.width * 0.8,
       decoration: BoxDecoration(
-        color: Colors.black,
+        color: enabled ? Colors.black : Colors.grey.shade400,
         borderRadius: BorderRadius.circular(26),
       ),
       child: TextButton(
         onPressed: onPressed,
         child: Text(
           innerText,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
+          style: TextStyle(
+            color: enabled ? Colors.white : Colors.white70,
+            fontSize: 14,
+          ),
         ),
       ),
     );

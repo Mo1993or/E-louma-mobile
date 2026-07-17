@@ -23,6 +23,7 @@ class _ReservationFormPageState extends State<ReservationFormPage> {
   final _fullNameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
+  final _addressCtrl = TextEditingController();
   final _quantityCtrl = TextEditingController(text: '1');
   final _priceCtrl = TextEditingController();
 
@@ -33,7 +34,21 @@ class _ReservationFormPageState extends State<ReservationFormPage> {
   void initState() {
     super.initState();
     _priceCtrl.text = '${widget.product.price}';
+    for (final c in [
+      _fullNameCtrl,
+      _emailCtrl,
+      _phoneCtrl,
+      _addressCtrl,
+      _quantityCtrl,
+      _priceCtrl,
+    ]) {
+      c.addListener(_onFieldsChanged);
+    }
     _loadSavedContact();
+  }
+
+  void _onFieldsChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadSavedContact() async {
@@ -49,23 +64,53 @@ class _ReservationFormPageState extends State<ReservationFormPage> {
       if (saved['phone']?.isNotEmpty == true) {
         _phoneCtrl.text = saved['phone']!;
       }
+      if (saved['address']?.isNotEmpty == true) {
+        _addressCtrl.text = saved['address']!;
+      }
     });
   }
 
   @override
   void dispose() {
-    _fullNameCtrl.dispose();
-    _emailCtrl.dispose();
-    _phoneCtrl.dispose();
-    _quantityCtrl.dispose();
-    _priceCtrl.dispose();
+    for (final c in [
+      _fullNameCtrl,
+      _emailCtrl,
+      _phoneCtrl,
+      _addressCtrl,
+      _quantityCtrl,
+      _priceCtrl,
+    ]) {
+      c.removeListener(_onFieldsChanged);
+      c.dispose();
+    }
     super.dispose();
   }
 
   int get _priceValue =>
       int.tryParse(_priceCtrl.text.trim()) ?? widget.product.price;
 
+  bool get _isFormValid {
+    final name = _fullNameCtrl.text.trim();
+    final email = _emailCtrl.text.trim();
+    final phone = _phoneCtrl.text.trim();
+    final address = _addressCtrl.text.trim();
+    final quantity = int.tryParse(_quantityCtrl.text.trim());
+
+    if (name.isEmpty) return false;
+    if (email.isEmpty || !email.contains('@')) return false;
+    if (phone.length < 9) return false;
+    if (address.isEmpty) return false;
+    if (quantity == null || quantity < 1) return false;
+
+    if (widget.product.pricenegotiable) {
+      if (int.tryParse(_priceCtrl.text.trim()) == null) return false;
+    }
+
+    return true;
+  }
+
   void _goToConfirmation() {
+    if (!_isFormValid) return;
     if (!_formKey.currentState!.validate()) return;
     setState(() => _showConfirmation = true);
   }
@@ -79,6 +124,7 @@ class _ReservationFormPageState extends State<ReservationFormPage> {
         fullname: _fullNameCtrl.text,
         email: _emailCtrl.text,
         phonenumber: _phoneCtrl.text,
+        address: _addressCtrl.text,
         productId: widget.product.id,
         price: _priceValue,
         quantity: _quantityCtrl.text,
@@ -88,6 +134,7 @@ class _ReservationFormPageState extends State<ReservationFormPage> {
         fullName: _fullNameCtrl.text,
         email: _emailCtrl.text,
         phone: _phoneCtrl.text,
+        address: _addressCtrl.text,
       );
 
       await ReservationService.cacheReservation(
@@ -224,6 +271,14 @@ class _ReservationFormPageState extends State<ReservationFormPage> {
             ),
             const SizedBox(height: 12),
             CustomInputField(
+              labelText: 'Adresse',
+              hintText: 'Ex. Dakar, Plateau',
+              emailCtr: _addressCtrl,
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? 'Adresse requise' : null,
+            ),
+            const SizedBox(height: 12),
+            CustomInputField(
               labelText: 'Quantité',
               hintText: '1',
               emailCtr: _quantityCtrl,
@@ -256,7 +311,7 @@ class _ReservationFormPageState extends State<ReservationFormPage> {
             const SizedBox(height: 32),
             CustomFormButton(
               innerText: 'Continuer',
-              onPressed: _goToConfirmation,
+              onPressed: _isFormValid ? _goToConfirmation : null,
             ),
           ],
         ),
@@ -293,6 +348,7 @@ class _ReservationFormPageState extends State<ReservationFormPage> {
                 _InfoRow(label: 'Nom', value: _fullNameCtrl.text.trim()),
                 _InfoRow(label: 'E-mail', value: _emailCtrl.text.trim()),
                 _InfoRow(label: 'Téléphone', value: _phoneCtrl.text.trim()),
+                _InfoRow(label: 'Adresse', value: _addressCtrl.text.trim()),
                 _InfoRow(label: 'Quantité', value: _quantityCtrl.text.trim()),
                 _InfoRow(label: 'Prix', value: '$_priceValue XOF'),
                 const Divider(height: 28),

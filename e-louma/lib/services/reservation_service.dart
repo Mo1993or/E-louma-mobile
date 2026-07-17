@@ -189,6 +189,7 @@ class ReservationService {
     required String fullName,
     required String email,
     required String phone,
+    String? address,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
@@ -197,6 +198,8 @@ class ReservationService {
         'fullName': fullName.trim(),
         'email': email.trim(),
         'phone': phone.trim(),
+        if (address != null && address.trim().isNotEmpty)
+          'address': address.trim(),
       }),
     );
   }
@@ -234,6 +237,7 @@ class ReservationService {
     required String fullname,
     required String email,
     required String phonenumber,
+    required String address,
     required String productId,
     required int price,
     required String quantity,
@@ -253,6 +257,7 @@ class ReservationService {
       'fullname': fullname.trim(),
       'email': email.trim(),
       'phonenumber': phonenumber.trim(),
+      'address': address.trim(),
       'product': productId,
       'price': price,
       'quantity': quantity.trim(),
