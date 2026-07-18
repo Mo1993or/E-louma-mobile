@@ -89,7 +89,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         ? ShimmersPage().statShimmer()
                         : _statCard(
                             title: "Revenus",
-                            value: "${infoDash?.stats?.totalRevenue}",
+                            value: "${infoDash?.stats?.totalRevenue} FCFA",
                             icon: Icons.payments,
                             color: Colors.deepPurple,
                           ),
@@ -119,7 +119,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         ? ShimmersPage().statShimmer()
                         : _statCard(
                             title: "Reservations",
-                            value: "842",
+                            value: "${infoDash?.stats?.totalReservations}",
                             icon: Icons.people,
                             color: Colors.orange,
                           ),
@@ -304,7 +304,7 @@ class _DashboardPageState extends State<DashboardPage> {
             value,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 26,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -323,25 +323,15 @@ class _DashboardPageState extends State<DashboardPage> {
 
   /// GRAPH DATA
   LineChartData mainData(List<MonthlyTrendInterface> monthlyChart) {
-    List<MonthlyTrendInterface> monthlyCharts = [];
-    List<FlSpot> spotss = [];
-    final spots = monthlyChart.asMap().entries.map((entry) {
+    final last6Months = monthlyChart.length <= 5
+        ? monthlyChart
+        : monthlyChart.sublist(monthlyChart.length - 7);
+    final spots = last6Months.asMap().entries.map((entry) {
       return FlSpot(
         entry.key.toDouble(),
         (entry.value.revenue as num).toDouble(),
       );
     }).toList();
-
-    for (var i = 0; i < spots.length; i++) {
-      if (i < 7) {
-        spotss.add(spots[i]);
-      }
-    }
-    for (var i = 0; i < monthlyChart.length; i++) {
-      if (i > 4) {
-        monthlyCharts.add(monthlyChart[i]);
-      }
-    }
 
     return LineChartData(
       borderData: FlBorderData(show: false),
@@ -355,15 +345,15 @@ class _DashboardPageState extends State<DashboardPage> {
             showTitles: true,
             getTitlesWidget: (value, meta) {
               final index = value.toInt();
-
-              if (index < 0 || index >= monthlyChart.length) {
+              print("metaaa ${meta.max}");
+              if (index < 0 || index >= last6Months.length) {
                 return const SizedBox();
               }
 
               return Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    monthlyCharts[index].label.substring(0, 4),
+                    last6Months[index].label.substring(0, 4),
                     style: const TextStyle(fontSize: 10),
                   ));
             },
@@ -375,7 +365,7 @@ class _DashboardPageState extends State<DashboardPage> {
             reservedSize: 35,
             getTitlesWidget: (value, meta) {
               return Text(
-                "${value.toInt()}k",
+                "${value.toInt()} M",
                 style: const TextStyle(fontSize: 10),
               );
             },
@@ -385,7 +375,7 @@ class _DashboardPageState extends State<DashboardPage> {
       minX: 0,
       maxX: 6,
       minY: 0,
-      maxY: 40,
+      maxY: 6,
       lineBarsData: [
         LineChartBarData(
           isCurved: true,
@@ -405,7 +395,7 @@ class _DashboardPageState extends State<DashboardPage> {
               end: Alignment.bottomCenter,
             ),
           ),
-          spots: spotss,
+          spots: spots,
         )
         // LineChartBarData(
         //   spots: spots,
@@ -429,7 +419,7 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget buildProductItem(ProductInterface product) {
+  Widget buildProductItem(ProductDashboardInterface product) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),

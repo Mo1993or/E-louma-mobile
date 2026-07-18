@@ -5,15 +5,15 @@ import 'package:E_louma/Interface/productInterface.dart';
 class DashboardInterface {
   SellerInterface? seller;
   StatsInterface? stats;
-  List<ProductInterface> recentReservations;
-  List<ProductInterface> topProductsByViews;
-  List<ProductInterface> topProductsByReservations;
+  // List<ProductDashboardInterface> recentReservations;
+  List<ProductDashboardInterface> topProductsByViews;
+  List<ProductDashboardInterface> topProductsByReservations;
   List<MonthlyTrendInterface> monthlyTrendInterface;
 
   DashboardInterface({
     required this.seller,
     required this.stats,
-    required this.recentReservations,
+    // required this.recentReservations,
     required this.topProductsByViews,
     required this.topProductsByReservations,
     required this.monthlyTrendInterface,
@@ -23,13 +23,15 @@ class DashboardInterface {
     return DashboardInterface(
       seller: SellerInterface.fromJSON(json['seller']),
       stats: StatsInterface.fromJSON(json['stats']),
-      recentReservations: new List<ProductInterface>.from(
-          json['recentReservations'].map((x) => ProductInterface.fromJSON(x))),
-      topProductsByViews: new List<ProductInterface>.from(
-          json['topProductsByViews'].map((x) => ProductInterface.fromJSON(x))),
-      topProductsByReservations: new List<ProductInterface>.from(
+      // recentReservations: new List<ProductDashboardInterface>.from(
+      // json['recentReservations']
+      //     .map((x) => ProductDashboardInterface.fromJSON(x))),
+      topProductsByViews: new List<ProductDashboardInterface>.from(
+          json['topProductsByViews']
+              .map((x) => ProductDashboardInterface.fromJSON(x))),
+      topProductsByReservations: new List<ProductDashboardInterface>.from(
           json['topProductsByReservations']
-              .map((x) => ProductInterface.fromJSON(x))),
+              .map((x) => ProductDashboardInterface.fromJSON(x))),
       monthlyTrendInterface: new List<MonthlyTrendInterface>.from(
           json['monthlyTrend'].map((x) => MonthlyTrendInterface.fromJSON(x))),
     );

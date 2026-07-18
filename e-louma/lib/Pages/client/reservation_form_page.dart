@@ -143,6 +143,7 @@ class _ReservationFormPageState extends State<ReservationFormPage> {
         phone: _phoneCtrl.text,
         email: _emailCtrl.text,
         note: 'Quantité : ${_quantityCtrl.text}',
+        phoneNumberSeller: widget.product.seller.phonenumber,
       );
 
       if (!mounted) return;

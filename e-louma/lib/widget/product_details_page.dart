@@ -25,6 +25,24 @@ class _ProductDetailCustomerPagesState
     extends State<ProductDetailCustomerPages> {
   final PageController _pageController = PageController();
 
+  String getCondition(String condition) {
+    switch (condition) {
+      case "neuf":
+        return "Neuf";
+      case "seconde_main":
+        return "Second main";
+      case "tres_bon_etat":
+        return "Trés bon état";
+      case "bon_etat":
+        return "Bon état";
+      case "satisfaisant":
+        return "Satisfaisant";
+
+      default:
+    }
+    return "";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -220,7 +238,7 @@ class _ProductDetailCustomerPagesState
                           ),
                           child: Center(
                               child: Text(
-                            widget.product.condition,
+                            getCondition(widget.product.condition),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                             ),

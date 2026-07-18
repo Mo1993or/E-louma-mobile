@@ -72,26 +72,12 @@ class _LoginPageState extends State<LoginPage> {
         var result = await AuthService().signIn(data);
 
         print("result $result");
+
         await _saveEmail(emailCtr.text);
         // setState(() {
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => ShopPage()));
         // });
-
-        final snackBar = SnackBar(
-          elevation: 0,
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.transparent,
-          content: AwesomeSnackbarContent(
-            title: 'Succès',
-            message: 'Connexion reussie',
-            contentType: ContentType.success,
-          ),
-        );
-
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(snackBar);
       } catch (error) {
         print("error $error");
         Navigator.pop(context);

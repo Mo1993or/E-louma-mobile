@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:E_louma/Interface/categoryInterface.dart';
 import 'package:E_louma/Interface/dashboardInterface.dart';
+import 'package:E_louma/Interface/notificationInterface.dart';
 import 'package:E_louma/Interface/productInterface.dart';
 import 'package:E_louma/Utils/network.dart';
 import 'package:http/http.dart' as http;
@@ -146,7 +147,7 @@ class ProductService {
   }
 
   Future<List<ProductInterface>> fetchProducts({
-    int limit = 20,
+    int limit = 200,
     String? categoryId,
   }) async {
     final queryParams = <String, String>{'limit': '$limit'};
@@ -271,6 +272,117 @@ class ProductService {
       }
     } catch (e) {
       throw Exception('$e');
+    }
+  }
+
+  dynamic deleteProduct(String id) async {
+    await _readToken();
+    try {
+      final response = await http.delete(
+        Uri.parse('$apiUrl/products/$id'),
+        headers: await _headersAuth(token),
+      );
+      print('response.body dd : ${response.body}');
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return responseData;
+      } else {
+        final errorMessage = responseData['message'];
+        throw Exception('$errorMessage');
+      }
+    } catch (e) {
+      throw Exception('$e');
+    }
+  }
+
+  dynamic deleteNotification(String id) async {
+    await _readToken();
+    try {
+      final response = await http.delete(
+        Uri.parse('$apiUrl/notifications/$id'),
+        headers: await _headersAuth(token),
+      );
+      print('response.body dd : ${response.body}');
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return responseData;
+      } else {
+        final errorMessage = responseData['message'];
+        throw Exception('$errorMessage');
+      }
+    } catch (e) {
+      throw Exception('$e');
+    }
+  }
+
+  dynamic readNotification(String id) async {
+    await _readToken();
+    try {
+      final response = await http.patch(
+        Uri.parse('$apiUrl/notifications/$id/read'),
+        headers: await _headersAuth(token),
+      );
+      print('response.body dd : ${response.body}');
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return responseData;
+      } else {
+        final errorMessage = responseData['message'];
+        throw Exception('$errorMessage');
+      }
+    } catch (e) {
+      throw Exception('$e');
+    }
+  }
+
+  dynamic readAllNotification() async {
+    await _readToken();
+    try {
+      final response = await http.patch(
+        Uri.parse('$apiUrl/notifications/read-all'),
+        headers: await _headersAuth(token),
+      );
+      print('response.body dd : ${response.body}');
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return responseData;
+      } else {
+        final errorMessage = responseData['message'];
+        throw Exception('$errorMessage');
+      }
+    } catch (e) {
+      throw Exception('$e');
+    }
+  }
+
+  Future<List<Notificationinterface>> fetchNotification() async {
+    await _readToken();
+    final response = await http.get(Uri.parse('$apiUrl/notifications'),
+        headers: await _headersAuth(token));
+    print("response.statusCode oo  ${response.statusCode}");
+    print("response.statusCode oo  ${response.body}");
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      print("Notificationinterface $jsonData");
+      final listNotif = <Notificationinterface>[];
+      for (final item in jsonData as List) {
+        try {
+          listNotif.add(Notificationinterface.fromJSON(item));
+        } catch (e) {
+          print("listNotif: $e");
+        }
+      }
+      print("listNotif $listNotif");
+      return listNotif;
+    } else {
+      final errorJson = json.decode(response.body);
+      final errorMessage = errorJson['message'];
+      throw Exception(errorMessage);
     }
   }
 }

@@ -262,6 +262,9 @@ class _SignupPageState extends State<SignupPage> {
                         if (textValue == null || textValue.isEmpty) {
                           return 'Mot de passe obligatoire!';
                         }
+                        if (textValue.length < 8) {
+                          return 'Il faut au moins 8 caractères';
+                        }
                         return null;
                       },
                       suffixIcon: true,

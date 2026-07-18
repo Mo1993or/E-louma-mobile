@@ -16,6 +16,7 @@ class ProductReservation {
   final String fullName;
   final String phone;
   final String? email;
+  final String? phoneNumberSeller;
   final String? note;
   final DateTime createdAt;
 
@@ -29,6 +30,7 @@ class ProductReservation {
     this.email,
     this.note,
     required this.createdAt,
+    required this.phoneNumberSeller,
   });
 
   Map<String, dynamic> toMap() => {
@@ -41,6 +43,7 @@ class ProductReservation {
         'email': email,
         'note': note,
         'createdAt': createdAt.toIso8601String(),
+        'phoneNumberSeller': phoneNumberSeller
       };
 
   factory ProductReservation.fromMap(Map<String, dynamic> m) =>
@@ -53,6 +56,7 @@ class ProductReservation {
         phone: m['phone'] as String? ?? '',
         email: m['email'] as String?,
         note: m['note'] as String?,
+        phoneNumberSeller: m["phoneNumberSeller"] as String?,
         createdAt: DateTime.tryParse(m['createdAt'] as String? ?? '') ??
             DateTime.now(),
       );
@@ -74,6 +78,7 @@ class ProductReservation {
       note: desc,
       createdAt:
           DateTime.tryParse(m['createdAt'] as String? ?? '') ?? DateTime.now(),
+      phoneNumberSeller: m["phoneNumberSeller"],
     );
   }
 }
@@ -135,6 +140,7 @@ class ReservationService {
     required Product product,
     required String fullName,
     required String phone,
+    required String phoneNumberSeller,
     String? email,
     String? note,
   }) async {
@@ -152,6 +158,7 @@ class ReservationService {
         email: (email == null || email.trim().isEmpty) ? null : email.trim(),
         note: (note == null || note.trim().isEmpty) ? null : note.trim(),
         createdAt: DateTime.now(),
+        phoneNumberSeller: phoneNumberSeller,
       ),
     );
     await prefs.setString(
@@ -208,6 +215,7 @@ class ReservationService {
     required ProductInterface product,
     required String fullName,
     required String phone,
+    required String phoneNumberSeller,
     String? email,
     String? note,
   }) async {
@@ -225,6 +233,7 @@ class ReservationService {
         email: (email == null || email.trim().isEmpty) ? null : email.trim(),
         note: (note == null || note.trim().isEmpty) ? null : note.trim(),
         createdAt: DateTime.now(),
+        phoneNumberSeller: phoneNumberSeller,
       ),
     );
     await prefs.setString(
@@ -261,6 +270,7 @@ class ReservationService {
       'product': productId,
       'price': price,
       'quantity': quantity.trim(),
+      "address": "test"
     };
     if (userId != null && userId.isNotEmpty) {
       payload['user'] = userId;

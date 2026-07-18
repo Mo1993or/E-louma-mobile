@@ -169,6 +169,23 @@ class _AddProductPageState extends State<AddProductPage> {
 
     try {
       showAlertDialog(context);
+      var conditionEnum = "";
+      setState(() {
+        switch (selectedCondition) {
+          case "Neuf":
+            conditionEnum = "neuf";
+          case "Second main":
+            conditionEnum = "seconde_main";
+          case "Trés bon état":
+            conditionEnum = "tres_bon_etat";
+          case "Bon état":
+            conditionEnum = "bon_etat";
+          case "Satisfaisant":
+            conditionEnum = "satisfaisant";
+            break;
+          default:
+        }
+      });
 
       var data = {
         "title": nameController.text.trim(),
@@ -176,7 +193,7 @@ class _AddProductPageState extends State<AddProductPage> {
         'category': idCat,
         'brand': descriptionController.text.trim(),
         'quantity': selectedQuantity,
-        'condition': selectedCondition,
+        'condition': conditionEnum,
         'pricenegotiable': selectedAmountType == "Oui",
       };
       var result = await ProductService().addProduct(data, imagesPath);
@@ -244,345 +261,346 @@ class _AddProductPageState extends State<AddProductPage> {
               child: Form(
                 key: _formKey,
                 child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // IMAGE UPLOAD
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xffF7F7F7),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        /// HEADER
-                        Row(
-                          children: [
-                            const Icon(Icons.photo_library_outlined),
-                            const SizedBox(width: 10),
-                            const Text(
-                              "Photos du produit",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const Spacer(),
-
-                            /// ADD BUTTON
-                            GestureDetector(
-                              onTap: _pickImages,
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: primaryColor,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.add,
-                                  color: Colors.white,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // IMAGE UPLOAD
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffF7F7F7),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          /// HEADER
+                          Row(
+                            children: [
+                              const Icon(Icons.photo_library_outlined),
+                              const SizedBox(width: 10),
+                              const Text(
+                                "Photos du produit",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
+                              const Spacer(),
 
-                        const SizedBox(height: 20),
-
-                        /// GRID IMAGES
-                        GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _images.length + 1,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                            childAspectRatio: 1,
-                          ),
-                          itemBuilder: (context, index) {
-                            /// ADD CARD
-                            if (index == _images.length) {
-                              return GestureDetector(
+                              /// ADD BUTTON
+                              GestureDetector(
                                 onTap: _pickImages,
                                 child: Container(
+                                  padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: Colors.grey.shade300,
-                                    ),
+                                    color: primaryColor,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(
+                                    Icons.add,
                                     color: Colors.white,
                                   ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Icon(
-                                        Icons.camera_alt_outlined,
-                                        size: 32,
-                                        color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          /// GRID IMAGES
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: _images.length + 1,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                              childAspectRatio: 1,
+                            ),
+                            itemBuilder: (context, index) {
+                              /// ADD CARD
+                              if (index == _images.length) {
+                                return GestureDetector(
+                                  onTap: _pickImages,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: Colors.grey.shade300,
                                       ),
-                                      SizedBox(height: 8),
-                                      Text(
-                                        "Ajouter",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: const [
+                                        Icon(
+                                          Icons.camera_alt_outlined,
+                                          size: 32,
+                                          color: Colors.black54,
+                                        ),
+                                        SizedBox(height: 8),
+                                        Text(
+                                          "Ajouter",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              /// IMAGE CARD
+                              return Stack(
+                                children: [
+                                  /// IMAGE
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      image: DecorationImage(
+                                        image: FileImage(_images[index]),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+
+                                  /// DELETE BUTTON
+                                  Positioned(
+                                    top: 8,
+                                    right: 8,
+                                    child: GestureDetector(
+                                      onTap: () => _removeImage(index),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(.7),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.close,
+                                          size: 18,
+                                          color: Colors.white,
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                ],
                               );
-                            }
-
-                            /// IMAGE CARD
-                            return Stack(
-                              children: [
-                                /// IMAGE
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    image: DecorationImage(
-                                      image: FileImage(_images[index]),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-
-                                /// DELETE BUTTON
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: GestureDetector(
-                                    onTap: () => _removeImage(index),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(6),
-                                      decoration: BoxDecoration(
-                                        color: Colors.black.withOpacity(.7),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.close,
-                                        size: 18,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 20),
-
-                  // NOM PRODUIT
-                  TextFormField(
-                    controller: nameController,
-                    cursorColor: primaryColor,
-                    validator: _validateTitle,
-                    decoration: InputDecoration(
-                      labelText: "Nom du produit",
-                      labelStyle: TextStyle(
-                        color: primaryColor,
+                            },
+                          ),
+                        ],
                       ),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(
+                    ),
+                    SizedBox(height: 20),
+
+                    // NOM PRODUIT
+                    TextFormField(
+                      controller: nameController,
+                      cursorColor: primaryColor,
+                      validator: _validateTitle,
+                      decoration: InputDecoration(
+                        labelText: "Nom du produit",
+                        labelStyle: TextStyle(
                           color: primaryColor,
                         ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: primaryColor),
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: primaryColor,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: primaryColor),
+                        ),
                       ),
                     ),
-                  ),
 
-                  SizedBox(height: 16),
+                    SizedBox(height: 16),
 
-                  // CATEGORIE
-                  DropdownButtonFormField<String>(
-                    value: selectedCategory,
-                    hint: Text("Choisir une catégorie"),
-                    validator: (value) =>
-                        value == null ? 'Choisissez une catégorie' : null,
-                    items: widget.listCategory
-                        .map((cat) => DropdownMenuItem(
-                              value: "${cat.id},${cat.name}",
-                              child: Text(cat.name),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() => _setCategoryFromValue(value));
-                    },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      labelStyle: TextStyle(
-                        color: primaryColor,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: primaryColor),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    cursorColor: primaryColor,
-                    maxLines: 5,
-                    controller: descriptionController,
-                    decoration: InputDecoration(
-                      labelText: "Description / Marque",
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.all(20),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(18),
-                          borderSide: BorderSide(color: primaryColor)),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: primaryColor),
+                    // CATEGORIE
+                    DropdownButtonFormField<String>(
+                      value: selectedCategory,
+                      hint: Text("Choisir une catégorie"),
+                      validator: (value) =>
+                          value == null ? 'Choisissez une catégorie' : null,
+                      items: widget.listCategory
+                          .map((cat) => DropdownMenuItem(
+                                value: "${cat.id},${cat.name}",
+                                child: Text(cat.name),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() => _setCategoryFromValue(value));
+                      },
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        labelStyle: TextStyle(
+                          color: primaryColor,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: primaryColor),
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: selectedCondition,
-                    hint: Text("Condition"),
-                    items: [
-                      "Neuf",
-                      "Second main",
-                      "Trés bon état",
-                      "Bon état",
-                      "Satisfaisant"
-                    ]
-                        .map((cat) => DropdownMenuItem(
-                              value: cat,
-                              child: Text(cat),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedCondition = value;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      labelStyle: TextStyle(
-                        color: primaryColor,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: primaryColor),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      cursorColor: primaryColor,
+                      maxLines: 5,
+                      controller: descriptionController,
+                      decoration: InputDecoration(
+                        labelText: "Description / Marque",
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.all(20),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(color: primaryColor)),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: primaryColor),
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: selectedAmountType,
-                    hint: Text("Montant Négociable ?"),
-                    items: [
-                      "Non",
-                      "Oui",
-                    ]
-                        .map((cat) => DropdownMenuItem(
-                              value: cat,
-                              child: Text(cat),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedAmountType = value;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      labelStyle: TextStyle(
-                        color: primaryColor,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: primaryColor),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  // PRIX
-                  TextFormField(
-                    controller: priceController,
-                    keyboardType: TextInputType.number,
-                    cursorColor: primaryColor,
-                    validator: _validatePrice,
-                    decoration: InputDecoration(
-                      fillColor: primaryColor,
-                      focusColor: primaryColor,
-                      labelText: (selectedAmountType == "Oui")
-                          ? "Montant provisoire"
-                          : "Montant définitif",
-                      labelStyle: TextStyle(
-                        color: primaryColor,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: primaryColor),
+                    SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: selectedCondition,
+                      hint: Text("Condition"),
+                      items: [
+                        "Neuf",
+                        "Second main",
+                        "Trés bon état",
+                        "Bon état",
+                        "Satisfaisant"
+                      ]
+                          .map((cat) => DropdownMenuItem(
+                                value: cat,
+                                child: Text(cat),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedCondition = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        labelStyle: TextStyle(
+                          color: primaryColor,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: primaryColor),
+                        ),
                       ),
                     ),
-                  ),
+                    SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: selectedAmountType,
+                      hint: Text("Montant Négociable ?"),
+                      items: [
+                        "Non",
+                        "Oui",
+                      ]
+                          .map((cat) => DropdownMenuItem(
+                                value: cat,
+                                child: Text(cat),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedAmountType = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        labelStyle: TextStyle(
+                          color: primaryColor,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: primaryColor),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    // PRIX
+                    TextFormField(
+                      controller: priceController,
+                      keyboardType: TextInputType.number,
+                      cursorColor: primaryColor,
+                      validator: _validatePrice,
+                      decoration: InputDecoration(
+                        fillColor: primaryColor,
+                        focusColor: primaryColor,
+                        labelText: (selectedAmountType == "Oui")
+                            ? "Montant provisoire"
+                            : "Montant définitif",
+                        labelStyle: TextStyle(
+                          color: primaryColor,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: primaryColor),
+                        ),
+                      ),
+                    ),
 
-                  SizedBox(height: 16),
+                    SizedBox(height: 16),
 
-                  // QUANTITE
-                  DropdownButtonFormField<String>(
-                    value: selectedQuantity,
-                    hint: Text("Quantité"),
-                    items: ["1", "2", "3", "4", "5", "6", "7"]
-                        .map((cat) => DropdownMenuItem(
-                              value: cat,
-                              child: Text(cat),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedQuantity = value;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      labelStyle: TextStyle(
-                        color: primaryColor,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: primaryColor),
+                    // QUANTITE
+                    DropdownButtonFormField<String>(
+                      value: selectedQuantity,
+                      hint: Text("Quantité"),
+                      items: ["1", "2", "3", "4", "5", "6", "7"]
+                          .map((cat) => DropdownMenuItem(
+                                value: cat,
+                                child: Text(cat),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedQuantity = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        labelStyle: TextStyle(
+                          color: primaryColor,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: primaryColor),
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 24),
+                    SizedBox(height: 24),
 
-                  // BOUTON
-                  CustomFormButton(
-                    innerText: 'Ajouter',
-                    onPressed: () async {
-                      await _addProduct();
-                    },
-                  ),
-                ],
+                    // BOUTON
+                    CustomFormButton(
+                      innerText: 'Ajouter',
+                      onPressed: () async {
+                        await _addProduct();
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),

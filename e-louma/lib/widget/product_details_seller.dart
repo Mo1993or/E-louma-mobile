@@ -30,6 +30,23 @@ class _ProductDetailPagesState extends State<ProductDetailPages> {
   List<String> listNameCat = [];
   bool showShimmers = true;
   bool checkSeller = false;
+  String getCondition(String condition) {
+    switch (condition) {
+      case "neuf":
+        return "Neuf";
+      case "seconde_main":
+        return "Second main";
+      case "tres_bon_etat":
+        return "Trés bon état";
+      case "bon_etat":
+        return "Bon état";
+      case "satisfaisant":
+        return "Satisfaisant";
+
+      default:
+    }
+    return "";
+  }
 
   _fetchReservation() async {
     print("values access ${widget.product.id}");
@@ -579,11 +596,19 @@ class _ProductDetailPagesState extends State<ProductDetailPages> {
                                 text:
                                     'Êtes vous sûre de vouloir supprimer ce produit ?',
                                 onConfirmBtnTap: () async {
-                                  Navigator.of(context).pushAndRemoveUntil(
-                                    MaterialPageRoute(
-                                        builder: (context) => ShopPage()),
-                                    (_) => false,
-                                  );
+                                  try {
+                                    Navigator.pop(context);
+                                    showAlertDialog(context);
+                                    await ProductService()
+                                        .deleteProduct(widget.product.id);
+                                    Navigator.of(context).pushAndRemoveUntil(
+                                      MaterialPageRoute(
+                                          builder: (context) => ShopPage()),
+                                      (_) => false,
+                                    );
+                                  } catch (e) {
+                                    Navigator.pop(context);
+                                  }
                                 },
                               );
                             },
@@ -622,7 +647,7 @@ class _ProductDetailPagesState extends State<ProductDetailPages> {
                           ),
                           child: Center(
                               child: Text(
-                            widget.product.condition,
+                            getCondition(widget.product.condition),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                             ),

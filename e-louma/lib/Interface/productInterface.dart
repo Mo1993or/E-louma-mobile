@@ -10,7 +10,7 @@ class ProductInterface {
   final String brand;
   final String quantity;
   final String condition;
-  final String seller;
+  Seller seller;
   final String status;
   final int favoritesCount;
   final int view;
@@ -49,7 +49,52 @@ class ProductInterface {
       brand: json['brand'] ?? "",
       quantity: json['quantity'] ?? "",
       condition: json['condition'] ?? "",
-      seller: json['seller']?.toString() ?? "",
+      seller: Seller.fromJSON(json['seller']),
+      status: json['status'] ?? "",
+      favoritesCount: json['favoritesCount'] ?? 0,
+      view: json['views'] ?? json['view'] ?? 0,
+      reservations: json['reservations'] ?? 0,
+    );
+  }
+
+  String get primaryImageUrl => image.isNotEmpty ? image.first.toString() : '';
+}
+
+class ProductDashboardInterface {
+  final String id;
+  final String title;
+  final int price;
+  final List<dynamic> image;
+  CategoryInterface category;
+  final String status;
+  final int favoritesCount;
+  final int view;
+  final int reservations;
+
+  ProductDashboardInterface({
+    required this.id,
+    required this.title,
+    required this.price,
+    required this.image,
+    required this.category,
+    required this.status,
+    required this.favoritesCount,
+    required this.view,
+    required this.reservations,
+  });
+
+  factory ProductDashboardInterface.fromJSON(Map<String, dynamic> json) {
+    final rawCategory = json['category'];
+    return ProductDashboardInterface(
+      id: json['_id'] ?? "",
+      title: json['title'] ?? "",
+      price: json['price'] is int
+          ? json['price']
+          : int.tryParse('${json['price']}') ?? 0,
+      image: json['images'] ?? [],
+      category: rawCategory is Map<String, dynamic>
+          ? CategoryInterface.fromJSON(rawCategory)
+          : CategoryInterface(id: '', name: 'Autre', image: ''),
       status: json['status'] ?? "",
       favoritesCount: json['favoritesCount'] ?? 0,
       view: json['views'] ?? json['view'] ?? 0,
@@ -82,6 +127,23 @@ class Product {
       price: json['price'] ?? "",
       quality: json['quality'] ?? "",
       image: json['image'] ?? "",
+    );
+  }
+}
+
+class Seller {
+  final String id;
+  final String phonenumber;
+
+  Seller({
+    required this.id,
+    required this.phonenumber,
+  });
+
+  factory Seller.fromJSON(Map<String, dynamic> json) {
+    return Seller(
+      id: json['_id'] ?? "",
+      phonenumber: json['phonenumber'] ?? "",
     );
   }
 }

@@ -1,6 +1,9 @@
 import 'dart:ui';
 
+import 'package:E_louma/Interface/notificationInterface.dart';
 import 'package:E_louma/Utils/constant.dart';
+import 'package:E_louma/services/product_service.dart';
+import 'package:E_louma/widget/shimmersAnimation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -38,47 +41,30 @@ class NotificationItem {
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
-  final List<NotificationItem> notifications = [
-    NotificationItem(
-      id: "1",
-      title: "Commande expédiée",
-      subtitle: "Votre colis est maintenant en route.",
-      time: "Il y a 2 min",
-      type: NotificationType.order,
-    ),
-    NotificationItem(
-      id: "2",
-      title: "Paiement confirmé",
-      subtitle: "Le paiement a été reçu avec succès.",
-      time: "Il y a 12 min",
-      type: NotificationType.payment,
-      isRead: true,
-    ),
-    NotificationItem(
-      id: "3",
-      title: "Nouveau message",
-      subtitle: "Le transporteur vous a envoyé un message.",
-      time: "Aujourd'hui • 10:25",
-      type: NotificationType.message,
-    ),
-    NotificationItem(
-      id: "4",
-      title: "Retard détecté",
-      subtitle: "Votre livraison risque d'arriver plus tard.",
-      time: "Hier",
-      type: NotificationType.warning,
-    ),
-    NotificationItem(
-      id: "5",
-      title: "Livraison terminée",
-      subtitle: "Le colis a été livré avec succès.",
-      time: "Hier",
-      type: NotificationType.success,
-      isRead: true,
-    ),
-  ];
+  List<Notificationinterface> notifications = [];
+  bool showShimmers = true;
+  int get unreadCount => notifications.where((e) => !e.read).length;
 
-  int get unreadCount => notifications.where((e) => !e.isRead).length;
+  _fetchNotifications() async {
+    try {
+      await ProductService().fetchNotification().then((value) {
+        setState(() {
+          print("values $value");
+          notifications = value;
+          showShimmers = false;
+        });
+      });
+    } catch (e) {
+      print("error $e");
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _fetchNotifications();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,14 +81,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        onPressed: () {
+        onPressed: () async {
           HapticFeedback.mediumImpact();
 
           setState(() {
             for (final n in notifications) {
-              n.isRead = true;
+              n.read = true;
             }
           });
+          await ProductService().readAllNotification();
         },
       ),
       body: CustomScrollView(
@@ -216,13 +203,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       HapticFeedback.mediumImpact();
                       return true;
                     },
-                    onDismissed: (_) {
+                    onDismissed: (_) async {
                       final removed = notification;
                       final removedIndex = index;
 
                       setState(() {
                         notifications.removeAt(index);
                       });
+                      await ProductService()
+                          .deleteNotification(notification.id);
 
                       // ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
@@ -250,17 +239,21 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       //   ),
                       // );
                     },
-                    child: NotificationCard(
-                      notification: notification,
-                      onTap: () {
-                        HapticFeedback.selectionClick();
+                    child: showShimmers
+                        ? ShimmersPage().statShimmer()
+                        : NotificationCard(
+                            notification: notification,
+                            onTap: () async {
+                              HapticFeedback.selectionClick();
 
-                        setState(() {
-                          notification.isRead = true;
-                        });
-                      },
-                      onDelete: () {},
-                    ),
+                              setState(() {
+                                notification.read = true;
+                              });
+                              await ProductService()
+                                  .readNotification(notification.id);
+                            },
+                            onDelete: () {},
+                          ),
                   ),
                 );
               },
@@ -273,7 +266,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 }
 
 class NotificationCard extends StatefulWidget {
-  final NotificationItem notification;
+  final Notificationinterface notification;
   final VoidCallback onTap;
   final VoidCallback onDelete;
 
@@ -330,6 +323,7 @@ class _NotificationCardState extends State<NotificationCard>
       case NotificationType.success:
         return const Color(0xff14B86A);
     }
+    return const Color(0xff14B86A);
   }
 
   IconData get icon {
@@ -349,6 +343,7 @@ class _NotificationCardState extends State<NotificationCard>
       case NotificationType.success:
         return Icons.check_circle_rounded;
     }
+    return Icons.check_circle_rounded;
   }
 
   String get badge {
@@ -368,6 +363,7 @@ class _NotificationCardState extends State<NotificationCard>
       case NotificationType.success:
         return "Succès";
     }
+    return "Succès";
   }
 
   @override
@@ -405,10 +401,10 @@ class _NotificationCardState extends State<NotificationCard>
           curve: Curves.easeOut,
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: notification.isRead ? Colors.white : const Color(0xffFDFEFF),
+            color: notification.read ? Colors.white : const Color(0xffFDFEFF),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: notification.isRead
+              color: notification.read
                   ? Colors.grey.shade200
                   : color.withOpacity(.18),
             ),
@@ -476,7 +472,7 @@ class _NotificationCardState extends State<NotificationCard>
                         ),
                         AnimatedOpacity(
                           duration: const Duration(milliseconds: 250),
-                          opacity: notification.isRead ? 0 : 1,
+                          opacity: notification.read ? 0 : 1,
                           child: Container(
                             width: 11,
                             height: 11,
@@ -496,7 +492,7 @@ class _NotificationCardState extends State<NotificationCard>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      notification.subtitle,
+                      notification.body,
                       style: TextStyle(
                         color: Colors.grey.shade700,
                         fontSize: 15,
@@ -513,7 +509,7 @@ class _NotificationCardState extends State<NotificationCard>
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          notification.time,
+                          notification.createdAt.substring(11, 16),
                           style: TextStyle(
                             color: Colors.grey.shade600,
                             fontWeight: FontWeight.w500,

@@ -1,3 +1,4 @@
+import 'package:E_louma/Interface/productInterface.dart';
 import 'package:E_louma/Utils/constant.dart';
 import 'package:E_louma/services/reservation_service.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class ClientReservationCard extends StatelessWidget {
 
   _launchWhatsapp(String produit, String tel) async {
     var url =
-        "https://wa.me/$tel?text= Bonjour j'ai vu votre produit sur E-LOUMA et ça m'interesse ${produit} ";
+        "https://wa.me/$tel?text= Bonjour j'ai vu votre produit $produit sur E-LOUMA et ça m'interesse ${produit} ";
     if (await canLaunch(url)) {
       await launch(url);
     } else {
@@ -204,7 +205,7 @@ class ClientReservationCard extends StatelessWidget {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: () async {
-                      await _makePhoneCall("+221773123189");
+                      await _makePhoneCall(reservation.phoneNumberSeller ?? "");
                       // Navigator.pop(context);
 
                       /// ACTION COMMANDE
@@ -231,7 +232,8 @@ class ClientReservationCard extends StatelessWidget {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: () async {
-                      await _launchWhatsapp("Chaussure", "+221773123189");
+                      await _launchWhatsapp(reservation.productName,
+                          reservation.phoneNumberSeller ?? "");
                       Navigator.pop(context);
 
                       /// ACTION COMMANDE

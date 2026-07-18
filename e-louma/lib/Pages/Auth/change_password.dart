@@ -80,6 +80,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       if (textValue == null || textValue.isEmpty) {
                         return 'Mot de passe obligatoire!';
                       }
+                      if (textValue.length < 8) {
+                        return 'Il faut au moins 8 caractères';
+                      }
                       return null;
                     },
                     passwordCtr: passwordCtr,
