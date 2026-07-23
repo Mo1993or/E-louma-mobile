@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:E_louma/Pages/Auth/Verify_otp.dart';
 import 'package:E_louma/Pages/Auth/signIn.dart';
+import 'package:E_louma/Utils/api_error.dart';
 import 'package:E_louma/Utils/constant.dart';
 import 'package:E_louma/models/user_role.dart';
 import 'package:E_louma/services/auth_service.dart';
@@ -400,18 +401,16 @@ class _SignupPageState extends State<SignupPage> {
         var result = await AuthService().signUp(data);
 
         print("result $result");
-        _saveEmail(emailCtr.text);
-        setState(() {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => LoginPage()));
-          // Navigator.pushReplacement(
-          //     context,
-          //     MaterialPageRoute(
-          //         builder: (context) => VerifyOtpPage(
-          //               email: emailCtr.text,
-          //               isCommingSignup: true,
-          //             )));
-        });
+        if (!mounted) return;
+        Navigator.pop(context);
+
+        await _saveEmail(emailCtr.text);
+        if (!mounted) return;
+
+        final successMessage = extractApiErrorMessage(
+          result is Map ? result['message'] : null,
+          fallback: 'Inscription réussie',
+        );
 
         final snackBar = SnackBar(
           elevation: 0,
@@ -419,7 +418,7 @@ class _SignupPageState extends State<SignupPage> {
           backgroundColor: Colors.transparent,
           content: AwesomeSnackbarContent(
             title: 'Succès',
-            message: 'Inscription reussie',
+            message: successMessage,
             contentType: ContentType.success,
           ),
         );
@@ -427,23 +426,33 @@ class _SignupPageState extends State<SignupPage> {
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(snackBar);
-      } catch (error) {
-        Navigator.pop(context);
-        final snackBar = SnackBar(
-          elevation: 0,
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.transparent,
-          content: AwesomeSnackbarContent(
-            title: 'Echouée',
-            message: 'Inscription échouée',
-            contentType: ContentType.failure,
-          ),
-        );
 
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(snackBar);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
+      } catch (error) {
         print("error $error");
+        if (mounted) {
+          Navigator.pop(context);
+          final snackBar = SnackBar(
+            elevation: 0,
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.transparent,
+            content: AwesomeSnackbarContent(
+              title: 'Inscription échouée',
+              message: cleanExceptionMessage(
+                error,
+                fallback: 'Inscription échouée',
+              ),
+              contentType: ContentType.failure,
+            ),
+          );
+
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(snackBar);
+        }
       }
     } else {
       if (!accepted) {

@@ -1,6 +1,7 @@
 import 'package:E_louma/Pages/Auth/change_password.dart';
 import 'package:E_louma/Pages/Auth/verify_otp.dart';
 import 'package:E_louma/Pages/Auth/signIn.dart';
+import 'package:E_louma/Utils/api_error.dart';
 import 'package:E_louma/Utils/constant.dart';
 import 'package:E_louma/Utils/size.dart';
 import 'package:E_louma/services/auth_service.dart';
@@ -173,7 +174,10 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
           backgroundColor: Colors.transparent,
           content: AwesomeSnackbarContent(
             title: 'Erreur',
-            message: 'Identifiants invalide',
+            message: cleanExceptionMessage(
+              error,
+              fallback: 'Impossible d\'envoyer le code',
+            ),
             contentType: ContentType.failure,
           ),
         );

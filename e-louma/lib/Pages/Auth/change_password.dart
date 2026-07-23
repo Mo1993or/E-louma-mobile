@@ -1,5 +1,6 @@
 import 'package:E_louma/Pages/Auth/Verify_otp.dart';
 import 'package:E_louma/Pages/Auth/signIn.dart';
+import 'package:E_louma/Utils/api_error.dart';
 import 'package:E_louma/Utils/constant.dart';
 import 'package:E_louma/Utils/size.dart';
 import 'package:E_louma/services/auth_service.dart';
@@ -167,7 +168,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           backgroundColor: Colors.transparent,
           content: AwesomeSnackbarContent(
             title: 'Erreur',
-            message: 'Identifiants invalide',
+            message: cleanExceptionMessage(
+              error,
+              fallback: 'Impossible de modifier le mot de passe',
+            ),
             contentType: ContentType.failure,
           ),
         );

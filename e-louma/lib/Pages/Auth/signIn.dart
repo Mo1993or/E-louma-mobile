@@ -1,6 +1,7 @@
 import 'package:E_louma/Pages/Auth/forgotPassword.dart';
 import 'package:E_louma/Pages/HomePage/ShopPage.dart';
 import 'package:E_louma/Pages/Auth/signup_page.dart';
+import 'package:E_louma/Utils/api_error.dart';
 import 'package:E_louma/Utils/constant.dart';
 import 'package:E_louma/models/user_role.dart';
 import 'package:E_louma/services/auth_service.dart';
@@ -90,8 +91,10 @@ class _LoginPageState extends State<LoginPage> {
         var result = await AuthService().signIn(data);
 
         print("result $result");
+        if (!mounted) return;
+        Navigator.pop(context);
+
         if (result["statusCode"] == 409) {
-          Navigator.pop(context);
           QuickAlert.show(
             context: context,
             type: QuickAlertType.info,
@@ -101,48 +104,43 @@ class _LoginPageState extends State<LoginPage> {
             cancelBtnText: "Non",
             confirmBtnColor: primaryColor,
             title: "Compte désactivé",
-            text: result["message"].toString(),
+            text: extractApiErrorMessage(
+              result["message"],
+              fallback: 'Votre compte est désactivé',
+            ),
             onConfirmBtnTap: () async {
               await _makePhoneCall("+221773123189");
             },
           );
         } else {
           await _saveEmail(emailCtr.text);
-          // setState(() {
+          if (!mounted) return;
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => ShopPage()));
-          // });
         }
       } catch (error) {
         print("error $error");
-        Navigator.pop(context);
-        final snackBar = SnackBar(
-          elevation: 0,
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.transparent,
-          content: AwesomeSnackbarContent(
-            title: 'Erreur',
-            message: 'Identifiants invalide',
-            contentType: ContentType.failure,
-          ),
-        );
+        if (mounted) {
+          Navigator.pop(context);
+          final snackBar = SnackBar(
+            elevation: 0,
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.transparent,
+            content: AwesomeSnackbarContent(
+              title: 'Erreur de connexion',
+              message: cleanExceptionMessage(
+                error,
+                fallback: 'Identifiants invalides',
+              ),
+              contentType: ContentType.failure,
+            ),
+          );
 
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(snackBar);
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(snackBar);
+        }
       }
-      // UserRole? role = await _promptRoleIfNeeded();
-      // role ??= UserRole.client;
-      // await SessionService.setRole(role);
-      // await SessionService.setLoggedIn(true);
-      // if (!mounted) return;
-      // if (role == UserRole.seller) {
-      //   Navigator.pushReplacement(context,
-      //       MaterialPageRoute(builder: (context) => const DashboardPage()));
-      // } else {
-      //   Navigator.pushReplacement(
-      //       context, MaterialPageRoute(builder: (context) => ShopPage()));
-      // }
     }
   }
 
