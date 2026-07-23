@@ -197,6 +197,9 @@ class ReservationService {
     required String email,
     required String phone,
     String? address,
+    String? dialCode,
+    String? countryName,
+    String? isoCode,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
@@ -207,6 +210,12 @@ class ReservationService {
         'phone': phone.trim(),
         if (address != null && address.trim().isNotEmpty)
           'address': address.trim(),
+        if (dialCode != null && dialCode.trim().isNotEmpty)
+          'dialCode': dialCode.trim(),
+        if (countryName != null && countryName.trim().isNotEmpty)
+          'countryName': countryName.trim(),
+        if (isoCode != null && isoCode.trim().isNotEmpty)
+          'isoCode': isoCode.trim(),
       }),
     );
   }
@@ -270,7 +279,6 @@ class ReservationService {
       'product': productId,
       'price': price,
       'quantity': quantity.trim(),
-      "address": "test"
     };
     if (userId != null && userId.isNotEmpty) {
       payload['user'] = userId;
