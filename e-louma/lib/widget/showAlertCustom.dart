@@ -12,7 +12,7 @@ showAlertDialog(BuildContext context) {
     size: 200,
   )));
   showDialog(
-    barrierDismissible: true,
+    barrierDismissible: false,
     context: context,
     builder: (BuildContext context) {
       return Center(

@@ -10,6 +10,7 @@ import 'package:E_louma/widget/showAlertCustom.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
@@ -30,6 +31,190 @@ class _ProductDetailPagesState extends State<ProductDetailPages> {
   List<String> listNameCat = [];
   bool showShimmers = true;
   bool checkSeller = false;
+
+  Future<void> showPriceBottomSheet(
+    BuildContext context, {
+    required Function(double price) onValidate,
+  }) async {
+    final TextEditingController priceController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(28),
+              ),
+            ),
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 30),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 45,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  "Définir le prix",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Saisissez le nouveau montant.",
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: priceController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[0-9.]'),
+                    ),
+                  ],
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.payments_outlined),
+                    suffixText: "FCFA",
+                    hintText: "",
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                SizedBox(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    onPressed: () async {
+                      final value = double.tryParse(priceController.text);
+
+                      if (value == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Veuillez entrer un prix valide."),
+                          ),
+                        );
+                        return;
+                      } else {
+                        try {
+                          if (checkSeller || widget.product.status == "vendu") {
+                            final snackBar = SnackBar(
+                              elevation: 0,
+                              behavior: SnackBarBehavior.floating,
+                              backgroundColor: Colors.transparent,
+                              content: AwesomeSnackbarContent(
+                                title: 'Déjà vendu',
+                                message: 'Commande déjà vendu',
+                                contentType: ContentType.warning,
+                              ),
+                            );
+
+                            ScaffoldMessenger.of(context)
+                              ..hideCurrentSnackBar()
+                              ..showSnackBar(snackBar);
+                          } else {
+                            showAlertDialog(context);
+                            var data = {
+                              "product": widget.product.id,
+                              "price": int.parse(priceController.text.trim()),
+                            };
+                            var result =
+                                await ProductService().validateRservation(data);
+
+                            print("result $result");
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ShopPage()));
+                            final snackBar = SnackBar(
+                              elevation: 0,
+                              behavior: SnackBarBehavior.floating,
+                              backgroundColor: Colors.transparent,
+                              content: AwesomeSnackbarContent(
+                                title: 'Succès',
+                                message: 'Commande marquée comme vendu',
+                                contentType: ContentType.success,
+                              ),
+                            );
+
+                            ScaffoldMessenger.of(context)
+                              ..hideCurrentSnackBar()
+                              ..showSnackBar(snackBar);
+                            setState(() {
+                              checkSeller = true;
+                            });
+                          }
+                        } catch (err) {
+                          print("err $err");
+                          Navigator.pop(context);
+                          final snackBar = SnackBar(
+                            elevation: 0,
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: Colors.transparent,
+                            content: AwesomeSnackbarContent(
+                              title: 'Erreur',
+                              message: 'Une erreur s\'est produite',
+                              contentType: ContentType.failure,
+                            ),
+                          );
+
+                          ScaffoldMessenger.of(context)
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(snackBar);
+                        }
+                      }
+
+                      // onValidate(value);
+                    },
+                    child: const Text(
+                      "Valider",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   String getCondition(String condition) {
     switch (condition) {
       case "neuf":
@@ -376,68 +561,77 @@ class _ProductDetailPagesState extends State<ProductDetailPages> {
             Expanded(
                 child: GestureDetector(
               onTap: () async {
-                try {
-                  if (checkSeller || widget.product.status == "vendu") {
-                    final snackBar = SnackBar(
-                      elevation: 0,
-                      behavior: SnackBarBehavior.floating,
-                      backgroundColor: Colors.transparent,
-                      content: AwesomeSnackbarContent(
-                        title: 'Déjà vendu',
-                        message: 'Commande déjà vendu',
-                        contentType: ContentType.warning,
-                      ),
-                    );
-
-                    ScaffoldMessenger.of(context)
-                      ..hideCurrentSnackBar()
-                      ..showSnackBar(snackBar);
-                  } else {
-                    showAlertDialog(context);
-                    var data = {
-                      "product": widget.product.id,
-                    };
-                    var result =
-                        await ProductService().validateRservation(data);
-
-                    print("result $result");
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => ShopPage()));
-                    final snackBar = SnackBar(
-                      elevation: 0,
-                      behavior: SnackBarBehavior.floating,
-                      backgroundColor: Colors.transparent,
-                      content: AwesomeSnackbarContent(
-                        title: 'Succès',
-                        message: 'Commande marquée comme vendu',
-                        contentType: ContentType.success,
-                      ),
-                    );
-
-                    ScaffoldMessenger.of(context)
-                      ..hideCurrentSnackBar()
-                      ..showSnackBar(snackBar);
-                    setState(() {
-                      checkSeller = true;
-                    });
-                  }
-                } catch (err) {
-                  print("err $err");
-                  Navigator.pop(context);
-                  final snackBar = SnackBar(
-                    elevation: 0,
-                    behavior: SnackBarBehavior.floating,
-                    backgroundColor: Colors.transparent,
-                    content: AwesomeSnackbarContent(
-                      title: 'Erreur',
-                      message: 'Une erreur s\'est produite',
-                      contentType: ContentType.failure,
-                    ),
+                if (widget.product.pricenegotiable) {
+                  showPriceBottomSheet(
+                    context,
+                    onValidate: (price) {
+                      print("Prix : $price FCFA");
+                    },
                   );
+                } else {
+                  try {
+                    if (checkSeller || widget.product.status == "vendu") {
+                      final snackBar = SnackBar(
+                        elevation: 0,
+                        behavior: SnackBarBehavior.floating,
+                        backgroundColor: Colors.transparent,
+                        content: AwesomeSnackbarContent(
+                          title: 'Déjà vendu',
+                          message: 'Commande déjà vendu',
+                          contentType: ContentType.warning,
+                        ),
+                      );
 
-                  ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(snackBar);
+                      ScaffoldMessenger.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(snackBar);
+                    } else {
+                      showAlertDialog(context);
+                      var data = {
+                        "product": widget.product.id,
+                      };
+                      var result =
+                          await ProductService().validateRservation(data);
+
+                      print("result $result");
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => ShopPage()));
+                      final snackBar = SnackBar(
+                        elevation: 0,
+                        behavior: SnackBarBehavior.floating,
+                        backgroundColor: Colors.transparent,
+                        content: AwesomeSnackbarContent(
+                          title: 'Succès',
+                          message: 'Commande marquée comme vendu',
+                          contentType: ContentType.success,
+                        ),
+                      );
+
+                      ScaffoldMessenger.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(snackBar);
+                      setState(() {
+                        checkSeller = true;
+                      });
+                    }
+                  } catch (err) {
+                    print("err $err");
+                    Navigator.pop(context);
+                    final snackBar = SnackBar(
+                      elevation: 0,
+                      behavior: SnackBarBehavior.floating,
+                      backgroundColor: Colors.transparent,
+                      content: AwesomeSnackbarContent(
+                        title: 'Erreur',
+                        message: 'Une erreur s\'est produite',
+                        contentType: ContentType.failure,
+                      ),
+                    );
+
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(snackBar);
+                  }
                 }
               },
               child: Container(
@@ -638,24 +832,47 @@ class _ProductDetailPagesState extends State<ProductDetailPages> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 30),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
                       Container(
-                          width: 120,
-                          height: 30,
+                          width: mediaWidth(context) / 2.5,
+                          height: 50,
                           decoration: BoxDecoration(
-                            color: Colors.orange.shade50,
-                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.green.shade100,
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: Center(
                               child: Text(
                             getCondition(widget.product.condition),
                             style: TextStyle(
+                              color: Colors.green,
                               fontWeight: FontWeight.bold,
                             ),
-                          )))
+                          ))),
+                      Container(
+                          width: mediaWidth(context) / 2.5,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                              child: Text(
+                            widget.product.pricenegotiable
+                                ? "Prix négociable"
+                                : "Prix non négociable",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ))),
                     ],
                   ),
-
-                  const SizedBox(height: 30),
 
                   /// COLORS
 

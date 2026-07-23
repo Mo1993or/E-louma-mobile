@@ -1,20 +1,21 @@
-import 'package:E_louma/Interface/categoryInterface.dart';
 import 'package:E_louma/Interface/productInterface.dart';
-import 'package:E_louma/Pages/HomePage/ShopPage.dart';
 import 'package:E_louma/Pages/client/reservation_form_page.dart';
 import 'package:E_louma/Utils/constant.dart';
 import 'package:E_louma/Utils/size.dart';
+import 'package:E_louma/widget/shimmersAnimation.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:quickalert/models/quickalert_type.dart';
-import 'package:quickalert/widgets/quickalert_dialog.dart';
 
 class ProductDetailCustomerPages extends StatefulWidget {
   final ProductInterface product;
+  final List<ProductInterface> listProduct;
 
-  const ProductDetailCustomerPages({super.key, required this.product});
+  const ProductDetailCustomerPages(
+      {super.key, required this.product, required this.listProduct});
 
   @override
   State<ProductDetailCustomerPages> createState() =>
@@ -41,6 +42,14 @@ class _ProductDetailCustomerPagesState
       default:
     }
     return "";
+  }
+
+  bool showShimmers = false;
+  List<ProductInterface> _filteredOtherProduct = [];
+  List<ProductInterface> filterOtherProduct(String idProduct) {
+    _filteredOtherProduct =
+        widget.listProduct.where((product) => product.id != idProduct).toList();
+    return _filteredOtherProduct;
   }
 
   @override
@@ -108,6 +117,7 @@ class _ProductDetailCustomerPagesState
         ),
       ),
       body: CustomScrollView(
+        physics: BouncingScrollPhysics(),
         slivers: [
           /// APP BAR
           SliverAppBar(
@@ -228,24 +238,61 @@ class _ProductDetailCustomerPagesState
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      // Container(
+                      //     width: 120,
+                      //     height: 30,
+                      //     // margin: EdgeInsets.all(20),
+                      //     decoration: BoxDecoration(
+                      //       color: Colors.orange.shade50,
+                      //       borderRadius: BorderRadius.circular(20),
+                      //     ),
+                      //     child: Center(
+                      //         child: Text(
+                      //       getCondition(widget.product.condition),
+                      //       style: TextStyle(
+                      //         fontWeight: FontWeight.bold,
+                      //       ),
+                      //     )))
+                    ],
+                  ),
+                  const SizedBox(height: 30),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
                       Container(
-                          width: 120,
-                          height: 30,
-                          // margin: EdgeInsets.all(20),
+                          width: mediaWidth(context) / 2.5,
+                          height: 50,
                           decoration: BoxDecoration(
-                            color: Colors.orange.shade50,
-                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.green.shade100,
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: Center(
                               child: Text(
                             getCondition(widget.product.condition),
                             style: TextStyle(
+                              color: Colors.green,
                               fontWeight: FontWeight.bold,
                             ),
-                          )))
+                          ))),
+                      Container(
+                          width: mediaWidth(context) / 2.5,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                              child: Text(
+                            widget.product.pricenegotiable
+                                ? "Prix négociable"
+                                : "Prix non négociable",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ))),
                     ],
                   ),
-
                   const SizedBox(height: 30),
 
                   /// COLORS
@@ -272,14 +319,224 @@ class _ProductDetailCustomerPagesState
                   //   ),
                   // ),
 
-                  const SizedBox(height: 120),
+                  // const SizedBox(height: 120),
                 ],
               ),
             ),
           ),
+          SliverToBoxAdapter(
+              child: (filterOtherProduct(widget.product.id).length > 0)
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                          Container(
+                              margin: EdgeInsets.all(20),
+                              child: Text("Autres produits",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ))),
+                          SizedBox(
+                            height: 180,
+                            child: ListView.builder(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              scrollDirection: Axis.horizontal,
+                              itemCount:
+                                  filterOtherProduct(widget.product.id).length,
+                              itemBuilder: (context, index) {
+                                if (showShimmers) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 15),
+                                    child: SizedBox(
+                                      width: 150,
+                                      child: ShimmersPage().statShimmer(),
+                                    ),
+                                  );
+                                }
+
+                                final element = filterOtherProduct(
+                                    widget.product.id)[index];
+
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 15),
+                                  child: SizedBox(
+                                      width: 150,
+                                      child: makeProductDetailsUser(
+                                        detailProduct: element,
+                                      )),
+                                );
+                              },
+                            ),
+                          ),
+                        ])
+                  : Container()),
+
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 30),
+          ),
+
+          // Container(
+          //   height: 150,
+          //   child: ListView(
+          //     scrollDirection: Axis.horizontal,
+          //     children: <Widget>[
+          //       for (var element in widget.listProduct)
+          //         showShimmers
+          //             ? ShimmersPage().statShimmer()
+          //             : makeProductDetailsUser(detailProduct: element),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );
+  }
+
+  Widget makeProductDetailsUser({required ProductInterface detailProduct}) {
+    return Container(
+        height: 200,
+        width: double.infinity,
+        margin: EdgeInsets.only(bottom: 20),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            image: DecorationImage(
+                image: NetworkImage(detailProduct.image[0]),
+                fit: BoxFit.cover)),
+        child: GestureDetector(
+            onTap: () {
+              if (detailProduct.status == "vendu") {
+                final snackBar = SnackBar(
+                  elevation: 0,
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: Colors.transparent,
+                  content: AwesomeSnackbarContent(
+                    title: 'Information',
+                    message: 'Produit déjà vendu',
+                    contentType: ContentType.help,
+                  ),
+                );
+
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(snackBar);
+              } else {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ProductDetailCustomerPages(
+                              product: detailProduct,
+                              listProduct: widget.listProduct,
+                            )));
+              }
+            },
+            child: Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  gradient:
+                      LinearGradient(begin: Alignment.bottomRight, colors: [
+                    Colors.black.withOpacity(.8),
+                    Colors.black.withOpacity(.1),
+                  ])),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        FadeInUp(
+                            duration: Duration(milliseconds: 1400),
+                            child: Align(
+                              alignment: Alignment.topRight,
+                              child: Container(
+                                width: 100,
+                                height: 30,
+                                margin: EdgeInsets.only(left: 10),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  color: Colors.black.withOpacity(.8),
+                                ),
+                                child: Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      detailProduct.category.name,
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.normal,
+                                          fontSize: 14),
+                                    )),
+                              ),
+                              // Icon(
+                              //         Icons.favorite_border,
+                              //         color: Colors.white,
+                              //       ),
+                            )),
+                        (detailProduct.status == "vendu")
+                            ? FadeInUp(
+                                duration: Duration(milliseconds: 1400),
+                                child: Align(
+                                  alignment: Alignment.topRight,
+                                  child: Container(
+                                    width: 100,
+                                    height: 30,
+                                    margin: EdgeInsets.only(left: 10, top: 10),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.green.withOpacity(.8),
+                                    ),
+                                    child: Align(
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          detailProduct.status,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.normal,
+                                              fontSize: 14),
+                                        )),
+                                  ),
+                                  // Icon(
+                                  //         Icons.favorite_border,
+                                  //         color: Colors.white,
+                                  //       ),
+                                ))
+                            : Container(),
+                      ]),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          FadeInUp(
+                              duration: Duration(milliseconds: 1500),
+                              child: Container(
+                                  width: 100,
+                                  child: Text(
+                                    detailProduct.title,
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 14),
+                                  ))),
+                          FadeInUp(
+                              duration: Duration(milliseconds: 1500),
+                              child: Text(
+                                "${detailProduct.price} FCFA",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold),
+                              )),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            )));
   }
 
   List<Widget> imageSliders() {

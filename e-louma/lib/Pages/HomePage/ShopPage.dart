@@ -2,11 +2,10 @@ import 'package:E_louma/Interface/categoryInterface.dart';
 import 'package:E_louma/Interface/productInterface.dart';
 import 'package:E_louma/Pages/Component/makeCategory.dart';
 import 'package:E_louma/Pages/HomePage/Notification.dart';
-import 'package:E_louma/Pages/Settings/dashboardPageTwo.dart';
 import 'package:E_louma/Pages/client/reservations_list_page.dart';
 import 'package:E_louma/Utils/constant.dart';
 import 'package:E_louma/services/product_service.dart';
-import 'package:E_louma/widget/product_details.dart';
+import 'package:E_louma/widget/Onboarding/onboarding_subscribe.dart';
 import 'package:E_louma/widget/product_details_page.dart';
 import 'package:E_louma/widget/shimmersAnimation.dart';
 import 'package:animate_do/animate_do.dart';
@@ -158,6 +157,13 @@ class _ShopPageState extends State<ShopPage> {
     }
   }
 
+  List<ProductInterface> _filteredMyProduct = [];
+  List<ProductInterface> filterMyProduct(String idProduct) {
+    _filteredMyProduct =
+        listProduct.where((product) => product.seller.id == idProduct).toList();
+    return _filteredMyProduct;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -175,7 +181,7 @@ class _ShopPageState extends State<ShopPage> {
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         Container(
             margin: const EdgeInsets.all(20),
-            width: mediaWidth(context) / 1.5,
+            width: mediaWidth(context) / 2,
             decoration: BoxDecoration(
               color: Color.fromARGB(209, 0, 0, 0),
               borderRadius: BorderRadius.circular(50),
@@ -205,24 +211,34 @@ class _ShopPageState extends State<ShopPage> {
                           color: primaryColor,
                         )),
                       )),
-                  GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => AddProductPage(
-                                      listCategory: listCat,
-                                    )));
-                      },
-                      child: Container(
-                        height: 55,
-                        width: 40,
-                        child: Center(
-                            child: Icon(
-                          Icons.add,
-                          color: primaryColor,
-                        )),
-                      )),
+                  // GestureDetector(
+                  //     onTap: () {
+                  //       if (listMyProduct.length <= 0) {
+                  //         Navigator.push(
+                  //             context,
+                  //             MaterialPageRoute(
+                  //                 builder: (context) =>
+                  //                     SellerOfferOnboardingPage(
+                  //                       listCategory: listCat,
+                  //                     )));
+                  //       } else {
+                  //         Navigator.push(
+                  //             context,
+                  //             MaterialPageRoute(
+                  //                 builder: (context) => AddProductPage(
+                  //                       listCategory: listCat,
+                  //                     )));
+                  //       }
+                  //     },
+                  //     child: Container(
+                  //       height: 55,
+                  //       width: 40,
+                  //       child: Center(
+                  //           child: Icon(
+                  //         Icons.add,
+                  //         color: primaryColor,
+                  //       )),
+                  //     )),
                   GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -264,11 +280,45 @@ class _ShopPageState extends State<ShopPage> {
                         width: 40,
                         child: Center(
                             child: Icon(
-                          Icons.person,
+                          Icons.bar_chart,
                           color: primaryColor,
                         )),
                       )),
-                ]))
+                ])),
+        GestureDetector(
+            onTap: () {
+              if (listMyProduct.length <= 0) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => SellerOfferOnboardingPage(
+                              listCategory: listCat,
+                            )));
+              } else {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => AddProductPage(
+                              listCategory: listCat,
+                            )));
+              }
+            },
+            child: Container(
+                // margin: const EdgeInsets.all(10),
+                width: mediaWidth(context) / 4,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.orange,
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: Center(
+                    child: Text(
+                  "+ Publier",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 16),
+                ))))
       ]),
       body: SingleChildScrollView(
         child: Column(
@@ -655,6 +705,8 @@ class _ShopPageState extends State<ShopPage> {
                     MaterialPageRoute(
                         builder: (context) => ProductDetailCustomerPages(
                               product: detailProduct,
+                              listProduct:
+                                  filterMyProduct(detailProduct.seller.id),
                             )));
               }
             },

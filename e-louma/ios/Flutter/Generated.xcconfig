@@ -1,16 +1,15 @@
 // This is a generated file; do not edit or check into version control.
-FLUTTER_ROOT=/opt/homebrew/Caskroom/flutter/3.27.2/flutter
-FLUTTER_APPLICATION_PATH=/Users/dethiediouf/Desktop/E-lou/E-louma-mobile/e-louma
-FLUTTER_FRAMEWORK_SWIFT_PACKAGE_PATH=/Users/dethiediouf/Desktop/E-lou/E-louma-mobile/e-louma/ios/Flutter/ephemeral/Packages/.packages/FlutterFramework
+FLUTTER_ROOT=/Users/moormor1993/Downloads/flutter
+FLUTTER_APPLICATION_PATH=/Users/moormor1993/Desktop/E-LOUMA/e-louma
 COCOAPODS_PARALLEL_CODE_SIGN=true
-FLUTTER_TARGET=/Users/dethiediouf/Desktop/E-lou/E-louma-mobile/e-louma/lib/main.dart
+FLUTTER_TARGET=/Users/moormor1993/Desktop/E-LOUMA/e-louma/lib/main.dart
 FLUTTER_BUILD_DIR=build
-FLUTTER_BUILD_NAME=1.0.1
+FLUTTER_BUILD_NAME=1.0.5
 FLUTTER_BUILD_NUMBER=1
 EXCLUDED_ARCHS[sdk=iphonesimulator*]=i386
 EXCLUDED_ARCHS[sdk=iphoneos*]=armv7
-DART_DEFINES=RkxVVFRFUl9WRVJTSU9OPTMuNDQuMA==,RkxVVFRFUl9DSEFOTkVMPXN0YWJsZQ==,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049NTU5ZmZhM2Y3NQ==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049NGM1MjVkYWM1ZQ==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My4xMi4w
+DART_DEFINES=RkxVVFRFUl9WRVJTSU9OPTMuNDEuNA==,RkxVVFRFUl9DSEFOTkVMPXN0YWJsZQ==,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049ZmYzN2JlZjYwMw==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049ZTRiOGRjYTNmMQ==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My4xMS4x
 DART_OBFUSCATION=false
 TRACK_WIDGET_CREATION=true
 TREE_SHAKE_ICONS=false
-PACKAGE_CONFIG=/Users/dethiediouf/Desktop/E-lou/E-louma-mobile/e-louma/.dart_tool/package_config.json
+PACKAGE_CONFIG=/Users/moormor1993/Desktop/E-LOUMA/e-louma/.dart_tool/package_config.json

@@ -64,14 +64,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             ProfileMenu(
               text: "Email\n${widget.seller?.email}",
-              icon: Icon(Icons.settings_outlined, color: Colors.blue),
+              icon: Icon(Icons.email, color: Colors.blue),
               press: () {},
             ),
-            ProfileMenu(
-              text: "Aide",
-              icon: Icon(Icons.help_outline, color: Colors.blue),
-              press: () {},
-            ),
+            // ProfileMenu(
+            //   text: "Aide",
+            //   icon: Icon(Icons.help_outline, color: Colors.blue),
+            //   press: () {},
+            // ),
             Container(
                 margin: EdgeInsets.all(20),
                 child: Column(children: [
@@ -153,8 +153,7 @@ class ProfilePic extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           const CircleAvatar(
-            backgroundImage:
-                NetworkImage("https://i.postimg.cc/0jqKB6mS/Profile-Image.png"),
+            backgroundImage: AssetImage("assets/images/utilisateur.png"),
           ),
           // Positioned(
           //   right: -16,

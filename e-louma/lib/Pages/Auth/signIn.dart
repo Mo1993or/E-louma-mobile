@@ -9,7 +9,10 @@ import 'package:E_louma/Utils/size.dart';
 import 'package:E_louma/widget/showAlertCustom.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -59,6 +62,21 @@ class _LoginPageState extends State<LoginPage> {
     debugPrint("value $value");
   }
 
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    // Sanitize the number by removing white spaces if any exist
+    final String cleanNumber = phoneNumber.replaceAll(' ', '');
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: cleanNumber,
+    );
+
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    } else {
+      throw Exception('Could not launch phone dialer for $cleanNumber');
+    }
+  }
+
   _handleLoginUser() async {
     if (_loginFormKey.currentState!.validate()) {
       try {
@@ -72,12 +90,29 @@ class _LoginPageState extends State<LoginPage> {
         var result = await AuthService().signIn(data);
 
         print("result $result");
-
-        await _saveEmail(emailCtr.text);
-        // setState(() {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => ShopPage()));
-        // });
+        if (result["statusCode"] == 409) {
+          Navigator.pop(context);
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.info,
+            showConfirmBtn: true,
+            showCancelBtn: true,
+            confirmBtnText: 'Appelé',
+            cancelBtnText: "Non",
+            confirmBtnColor: primaryColor,
+            title: "Compte désactivé",
+            text: result["message"].toString(),
+            onConfirmBtnTap: () async {
+              await _makePhoneCall("+221773123189");
+            },
+          );
+        } else {
+          await _saveEmail(emailCtr.text);
+          // setState(() {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => ShopPage()));
+          // });
+        }
       } catch (error) {
         print("error $error");
         Navigator.pop(context);

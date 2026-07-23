@@ -314,7 +314,7 @@ class _SignupPageState extends State<SignupPage> {
                                     GestureDetector(
                                       onTap: () async {
                                         await _launchCondition(
-                                            "https://e-louma.netlify.app/cgu-politique-confidentialite");
+                                            "https://e-louma.org/cgu-politique-confidentialite");
                                         // Ouvrir la politique
                                       },
                                       child: const Text(

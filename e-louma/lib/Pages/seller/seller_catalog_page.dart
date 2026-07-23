@@ -91,6 +91,14 @@ class _SellerCatalogPageState extends State<SellerCatalogPage> {
     }
   }
 
+  List<ProductInterface> _filteredMyProduct = [];
+  List<ProductInterface> filterMyProduct(String idProduct) {
+    _filteredMyProduct = widget.listProduct
+        .where((product) => product.seller.id == idProduct)
+        .toList();
+    return _filteredMyProduct;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -354,8 +362,10 @@ class _SellerCatalogPageState extends State<SellerCatalogPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        ProductDetailCustomerPages(product: detailProduct),
+                    builder: (context) => ProductDetailCustomerPages(
+                      product: detailProduct,
+                      listProduct: filterMyProduct(detailProduct.seller.id),
+                    ),
                   ),
                 );
               }
@@ -572,103 +582,6 @@ class _CategoryCard extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProductTile extends StatelessWidget {
-  final ProductInterface product;
-
-  const _ProductTile({required this.product});
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(14),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  ProductDetailCustomerPages(product: product),
-            ),
-          );
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.asset(
-                    product.image[0],
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) =>
-                        Container(color: Colors.grey.shade200),
-                  ),
-                  Positioned(
-                    left: 8,
-                    top: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        product.category.name,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "${product.price}",
-                    style: TextStyle(
-                      color: Colors.green.shade700,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                    ),
-                  ),
-                  Text(
-                    product.quantity,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
               ),
             ),
           ],

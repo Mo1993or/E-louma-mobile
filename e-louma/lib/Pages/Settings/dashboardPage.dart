@@ -1,20 +1,13 @@
 import 'package:E_louma/Interface/dashboardInterface.dart';
 import 'package:E_louma/Interface/productInterface.dart';
-import 'package:E_louma/Pages/HomePage/homePage.dart';
-import 'package:E_louma/Pages/HomePage/ShopPage.dart';
-import 'package:E_louma/Pages/Auth/signIn.dart';
 import 'package:E_louma/Pages/Settings/profile.dart';
-import 'package:E_louma/Pages/client/client_discover_page.dart';
 import 'package:E_louma/Utils/constant.dart';
-import 'package:E_louma/Utils/size.dart';
 import 'package:E_louma/services/product_service.dart';
 import 'package:E_louma/widget/shimmersAnimation.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:E_louma/services/session_service.dart';
-import 'package:shimmer/shimmer.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -74,9 +67,8 @@ class _DashboardPageState extends State<DashboardPage> {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
+          padding: const EdgeInsets.all(16),
+          child: Column(children: [
             /// 🔥 KPI CARDS
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const SizedBox(height: 18),
@@ -141,7 +133,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               const SizedBox(height: 30),
               const Text(
-                "Évolution des ventes",
+                "Évolution des revenues",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
@@ -167,89 +159,41 @@ class _DashboardPageState extends State<DashboardPage> {
                     : Container(),
               ).animate().fade().slideY(),
             ]),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //   children: [
-            //     DashboardCard(
-            //       title: "Revenus",
-            //       value: "${infoDash?.stats?.totalRevenue}",
-            //       icon: Icons.attach_money,
-            //       color: Colors.green,
-            //       showShimmers: showShimmers,
-            //     ),
-            //     DashboardCard(
-            //       title: "Ventes",
-            //       value: "${infoDash?.stats?.totalSold}",
-            //       icon: Icons.shopping_cart,
-            //       color: Colors.blue,
-            //       showShimmers: showShimmers,
-            //     ),
-            //   ],
-            // ),
-            // const SizedBox(height: 12),
-            // Row(
-            //   children: [
-            //     Expanded(
-            //       child: DashboardCard(
-            //         title: "Produits",
-            //         value: "${infoDash?.stats?.totalProducts}",
-            //         icon: Icons.inventory,
-            //         color: Colors.orange,
-            //         showShimmers: showShimmers,
-            //       ),
-            //     ),
-            //   ],
-            // ),
 
             const SizedBox(height: 20),
-
-            /// 📊 GRAPH
-            // Container(
-            //   padding: const EdgeInsets.all(16),
-            //   decoration: BoxDecoration(
-            //     color: Colors.white,
-            //     borderRadius: BorderRadius.circular(16),
-            //   ),
-            //   child: Column(
-            //     crossAxisAlignment: CrossAxisAlignment.start,
-            //     children: [
-            //       Text("Ventes mensuelles",
-            //           style: GoogleFonts.poppins(
-            //               fontSize: 16, fontWeight: FontWeight.bold)),
-            //       const SizedBox(height: 20),
-            //       if (infoDash != null)
-            //         SizedBox(
-            //           height: 200,
-            //           child:
-            //               LineChart(mainData(infoDash!.monthlyTrendInterface)),
-            //         ),
-            //     ],
-            //   ),
-            // ),
-
-            SizedBox(height: 20),
 
             /// 🏆 TOP PRODUITS
-            buildSectionTitle("Top Produits"),
-            const SizedBox(height: 10),
+            ///
             if (infoDash != null)
-              for (var item in infoDash!.topProductsByReservations)
-                buildProductItem(item),
-            // buildProductItem("Sac à dos", "30 ventes", "80 000 FCFA"),
+              Column(children: [
+                (infoDash!.topProductsByReservations.length > 0)
+                    ? buildSectionTitle("Top Produits")
+                    : Container(),
+                const SizedBox(height: 10),
 
-            const SizedBox(height: 20),
+                for (var item in infoDash!.topProductsByReservations)
+                  buildProductItem(item),
+                // buildProductItem("Sac à dos", "30 ventes", "80 000 FCFA"),
+
+                const SizedBox(height: 20),
+              ]),
 
             /// 📜 HISTORIQUE
-            buildSectionTitle("Historique des ventes"),
-            const SizedBox(height: 10),
             if (infoDash != null)
-              for (var item in infoDash!.topProductsByViews)
-                buildProductItem(item),
+              Column(
+                children: [
+                  (infoDash!.topProductsByReservations.length > 0)
+                      ? buildSectionTitle("Historique des ventes")
+                      : Container(),
+                  const SizedBox(height: 10),
+                  // if (infoDash != null)
+                  for (var item in infoDash!.topProductsByViews)
+                    buildProductItem(item),
 
-            const SizedBox(height: 15),
-          ],
-        ),
-      ),
+                  const SizedBox(height: 15),
+                ],
+              ),
+          ])),
     );
   }
 
@@ -329,7 +273,7 @@ class _DashboardPageState extends State<DashboardPage> {
     final spots = last6Months.asMap().entries.map((entry) {
       return FlSpot(
         entry.key.toDouble(),
-        (entry.value.revenue as num).toDouble(),
+        (entry.value.revenue / 1000 as num).toDouble(),
       );
     }).toList();
 
@@ -365,7 +309,7 @@ class _DashboardPageState extends State<DashboardPage> {
             reservedSize: 35,
             getTitlesWidget: (value, meta) {
               return Text(
-                "${value.toInt()} M",
+                "${value.toInt()} k",
                 style: const TextStyle(fontSize: 10),
               );
             },
@@ -375,7 +319,7 @@ class _DashboardPageState extends State<DashboardPage> {
       minX: 0,
       maxX: 6,
       minY: 0,
-      maxY: 6,
+      maxY: 900,
       lineBarsData: [
         LineChartBarData(
           isCurved: true,

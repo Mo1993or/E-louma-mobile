@@ -28,8 +28,7 @@ Widget makeCategory(
                         isComming: false,
                       )));
         },
-        child: Material(
-          child: Container(
+        child: Container(
             margin: EdgeInsets.only(right: 20),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
@@ -55,7 +54,7 @@ Widget makeCategory(
                   )),
             ),
           ),
-        ),
+        
       ),
     ),
   );

@@ -1,15 +1,13 @@
 import 'package:E_louma/Interface/categoryInterface.dart';
 import 'package:E_louma/Interface/productInterface.dart';
 import 'package:E_louma/Pages/Auth/signIn.dart';
-import 'package:E_louma/Pages/Auth/signup_page.dart';
+import 'package:E_louma/Pages/HomePage/homePage.dart';
 import 'package:E_louma/Pages/client/reservations_list_page.dart';
 import 'package:E_louma/Utils/constant.dart';
 import 'package:E_louma/Utils/size.dart';
 import 'package:E_louma/data/catalog_data.dart';
 import 'package:E_louma/services/product_service.dart';
-import 'package:E_louma/widget/product_details.dart';
 import 'package:E_louma/widget/product_details_page.dart';
-import 'package:E_louma/widget/product_details_seller.dart';
 import 'package:E_louma/widget/shimmersAnimation.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
@@ -47,16 +45,10 @@ class _ClientDiscoverPageState extends State<ClientDiscoverPage> {
 
   bool checkVoice = false;
   List<ProductInterface> _filtered = [];
+  List<ProductInterface> _filteredMyProduct = [];
 
   filteredProduct(String searchText) {
     _applyFilters();
-  }
-
-  List<Product> get _featured {
-    final all = CatalogData.allProducts;
-    if (all.isEmpty) return [];
-    final n = all.length >= 6 ? 6 : all.length;
-    return all.take(n).toList(growable: false);
   }
 
   _fetchCategory() async {
@@ -99,6 +91,12 @@ class _ClientDiscoverPageState extends State<ClientDiscoverPage> {
     } catch (e) {
       print("error $e");
     }
+  }
+
+  List<ProductInterface> filterMyProduct(String idProduct) {
+    _filteredMyProduct =
+        listProduct.where((product) => product.seller.id == idProduct).toList();
+    return _filteredMyProduct;
   }
 
   @override
@@ -289,6 +287,8 @@ class _ClientDiscoverPageState extends State<ClientDiscoverPage> {
                     MaterialPageRoute(
                         builder: (context) => ProductDetailCustomerPages(
                               product: detailProduct,
+                              listProduct:
+                                  filterMyProduct(detailProduct.seller.id),
                             )));
               }
             },
@@ -429,7 +429,14 @@ class _ClientDiscoverPageState extends State<ClientDiscoverPage> {
                 elevation: 1,
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back_rounded),
-                  onPressed: () => Navigator.maybePop(context),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => HomePage(),
+                      ),
+                    );
+                  },
                 ),
               ),
               const Spacer(),
@@ -761,13 +768,13 @@ class _ProductCard extends StatelessWidget {
       shadowColor: Colors.black26,
       child: InkWell(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  ProductDetailCustomerPages(product: product),
-            ),
-          );
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) =>
+          //         ProductDetailCustomerPages(product: product),
+          //   ),
+          // );
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

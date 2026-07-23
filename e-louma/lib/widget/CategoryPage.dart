@@ -45,6 +45,14 @@ class _CategoryPageState extends State<CategoryPage> {
     }
   }
 
+  List<ProductInterface> _filteredMyProduct = [];
+  List<ProductInterface> filterMyProduct(String idProduct) {
+    _filteredMyProduct = widget.listProduct
+        .where((product) => product.seller.id == idProduct)
+        .toList();
+    return _filteredMyProduct;
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -306,6 +314,8 @@ class _CategoryPageState extends State<CategoryPage> {
                         MaterialPageRoute(
                             builder: (context) => ProductDetailCustomerPages(
                                   product: detailProduct,
+                                  listProduct:
+                                      filterMyProduct(detailProduct.seller.id),
                                 )));
               }
             },
