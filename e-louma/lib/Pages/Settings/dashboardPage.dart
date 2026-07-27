@@ -1,6 +1,5 @@
 import 'package:E_louma/Interface/dashboardInterface.dart';
 import 'package:E_louma/Interface/productInterface.dart';
-import 'package:E_louma/Pages/Settings/profile.dart';
 import 'package:E_louma/Utils/constant.dart';
 import 'package:E_louma/services/product_service.dart';
 import 'package:E_louma/widget/shimmersAnimation.dart';
@@ -50,21 +49,6 @@ class _DashboardPageState extends State<DashboardPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         foregroundColor: Colors.black,
-        actions: [
-          IconButton(
-            tooltip: 'Voir la boutique',
-            onPressed: () {
-              if (infoDash != null)
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          ProfileScreen(seller: infoDash?.seller)),
-                );
-            },
-            icon: const Icon(Icons.person),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),

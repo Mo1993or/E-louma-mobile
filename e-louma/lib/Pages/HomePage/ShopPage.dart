@@ -1,4 +1,5 @@
 import 'package:E_louma/Interface/categoryInterface.dart';
+import 'package:E_louma/Interface/dashboardInterface.dart';
 import 'package:E_louma/Interface/productInterface.dart';
 import 'package:E_louma/Pages/Component/makeCategory.dart';
 import 'package:E_louma/Pages/HomePage/Notification.dart';
@@ -10,6 +11,7 @@ import 'package:E_louma/widget/product_details_page.dart';
 import 'package:E_louma/widget/shimmersAnimation.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:E_louma/Pages/Settings/dashboardPage.dart';
+import 'package:E_louma/Pages/Settings/profile.dart';
 import 'package:E_louma/Pages/Auth/signIn.dart';
 import 'package:E_louma/Utils/size.dart';
 import 'package:E_louma/Pages/seller/seller_catalog_page.dart';
@@ -28,6 +30,7 @@ class _ShopPageState extends State<ShopPage> {
   bool savedConnexion = false;
 
   String token = "";
+  SellerInterface? _seller;
 
   _readToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -36,6 +39,25 @@ class _ShopPageState extends State<ShopPage> {
     setState(() {
       token = tokenValue;
     });
+    if (tokenValue.isNotEmpty) {
+      _fetchSellerProfile();
+    }
+  }
+
+  Future<void> _fetchSellerProfile() async {
+    try {
+      final dash = await ProductService().fetchMyDashboard();
+      if (!mounted) return;
+      setState(() {
+        _seller = dash.seller;
+      });
+    } catch (e) {
+      print("error profile $e");
+      if (!mounted) return;
+      setState(() {
+        _seller = null;
+      });
+    }
   }
 
   List<ProductInterface> _filtered = [];
@@ -382,6 +404,43 @@ class _ShopPageState extends State<ShopPage> {
                                       );
                                     },
                                   )),
+                              if (_seller != null)
+                                FadeInUp(
+                                  duration: Duration(milliseconds: 1400),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 8),
+                                    child: IconButton(
+                                      tooltip: 'Mon profil',
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ProfileScreen(seller: _seller),
+                                          ),
+                                        );
+                                      },
+                                      icon: Container(
+                                        width: 34,
+                                        height: 34,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: primaryColor
+                                              .withValues(alpha: 0.9),
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.person,
+                                          color: Colors.black87,
+                                          size: 20,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                           Padding(
